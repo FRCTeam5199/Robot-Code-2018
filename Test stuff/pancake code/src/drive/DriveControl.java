@@ -27,7 +27,7 @@ public class DriveControl implements LoopModule {
 
 		this.gyro = base.getGyro();
 
-		driveMode = DriveMode.POINT;
+		driveMode = DriveMode.TANK;
 	}
 
 	@Override
