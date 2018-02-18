@@ -28,6 +28,8 @@ public class ElevatorControl implements LoopModule {
 		// elevator.setMotor(elevatorPID.update(elevator.getLocation()));
 
 		elevator.setMotor(joystick.GetYAxis() * joystick.GetSlider());
+		elevator.getPosition();
+		//System.out.println(elevator.getPosition());
 	}
 
 	public void setPosition() {
