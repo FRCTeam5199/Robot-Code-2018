@@ -8,6 +8,7 @@
 package org.usfirst.frc.team5199.robot;
 
 import edu.wpi.first.wpilibj.SampleRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import networking.RemoteOutput;
 import sensors.Location;
 import sensors.Sensors;
@@ -78,10 +79,10 @@ public class Robot extends SampleRobot {
 	public void operatorControl() {
 		ClockRegulator regulator = new ClockRegulator(100);
 		Location loc = sensors.getLocation();
-//		while (isOperatorControl() && isEnabled()) {
-//			Robot.nBroadcaster.println(loc.getLocation());
-//			regulator.sync();
-//		}
+		// while (isOperatorControl() && isEnabled()) {
+		// Robot.nBroadcaster.println(loc.getLocation());
+		// regulator.sync();
+		// }
 		loc.reset();
 	}
 
@@ -91,7 +92,6 @@ public class Robot extends SampleRobot {
 	@Override
 	public void test() {
 		while (isTest() && isEnabled()) {
-
 		}
 	}
 }
