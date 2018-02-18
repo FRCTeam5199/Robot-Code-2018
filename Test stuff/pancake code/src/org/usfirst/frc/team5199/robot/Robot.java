@@ -78,5 +78,10 @@ public class Robot extends SampleRobot {
 
 	@Override
 	public void test() {
+		ClockRegulator cl = new ClockRegulator(50);
+		while (isEnabled() && isTest()) {
+			System.out.println(base.getGyro().getAngle());
+			cl.sync();
+		}
 	}
 }
