@@ -16,7 +16,7 @@ public class Location implements Runnable {
 	private final ADXRS450_Gyro gyro;
 	private final Encoder wheelsLeft;
 	private final Encoder wheelsRight;
-	
+
 	private final double degToRad = Math.PI / 180d;
 
 	private double eLeftLast;
@@ -35,7 +35,7 @@ public class Location implements Runnable {
 		this.wheelsRight = wheelsRight;
 
 		location = Vector2.ZERO.clone();
-		
+
 		gyroZero = gyro.getAngle();
 		eLeftLast = wheelsLeft.getDistance();
 		eRightLast = wheelsRight.getDistance();
@@ -84,7 +84,7 @@ public class Location implements Runnable {
 		while (isAlive) {
 			double avgDistance = (deltaRight() + deltaLeft()) / 2d;
 			double dAngle = deltaAngle();
-			
+
 			Vector2 delta;
 
 			if (dAngle == 0) {
@@ -96,8 +96,10 @@ public class Location implements Runnable {
 			}
 
 			location = Vector2.add(location, delta);
-			
 			regulator.sync();
+			if (Robot.toolInterface != null) {
+				Robot.toolInterface.sendPos();
+			}
 		}
 
 	}
