@@ -29,7 +29,7 @@ public class ArmControl implements LoopModule {
 
 	@Override
 	public void update(long delta) {
-		if (elevatorEncoder.getDistance() > Elevator.deadzone && stick.getButtonDown(8)) {
+		if (elevatorEncoder.getDistance() > Elevator.deadzone && stick.getButtonDown(2)) {
 			armPos = !armPos;
 			arm.setPiston(armPos);
 		}
