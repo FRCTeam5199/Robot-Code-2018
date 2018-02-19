@@ -10,9 +10,10 @@ public class Path {
 
 	private final double radToDeg = 180d / Math.PI;
 	private final double radiusBufferDist = 24;
-	private final double turnRadiusSpeedK = 4;
+	private final double turnRadiusSpeedK = 6;
 	private final double maxAccel = 6; // inches per second squared
 	private final double startEndSpeed = 2;
+	private final double maxSpeed = 55;
 
 	private PathNode[] checkpoints;
 
@@ -28,19 +29,8 @@ public class Path {
 		checkpoints = parseStringData(data);
 		Robot.nBroadcaster.println("Calculating turn speeds...");
 		checkpoints = calcTargetSpeed(checkpoints);
-
-		Robot.nBroadcaster.println("Target Speeds");
-		for (PathNode n : checkpoints) {
-			Robot.nBroadcaster.println(n);
-		}
-
 		Robot.nBroadcaster.println("Adjusting speeds for braking and acceleration...");
 		checkpoints = calcSpeed(checkpoints);
-
-		System.out.println("\n\nCalculated Speeds");
-		for (PathNode n : checkpoints) {
-			Robot.nBroadcaster.println(n);
-		}
 
 		Robot.nBroadcaster.println("Number of checkpoints: " + checkpoints.length);
 	}
@@ -106,13 +96,27 @@ public class Path {
 			}
 
 			path[i].setSpeed(Math.sqrt(radiusSum / radiusBuffer.size()) * turnRadiusSpeedK);
-
 		}
 
 		path[0].setSpeed(startEndSpeed);
 		path[path.length - 1].setSpeed(startEndSpeed);
+
+		for (int i = 0; i < path.length; i++) {
+			path[i].setSpeed(clamp(path[i].getSpeed(), 0, maxSpeed));
+		}
+
 		return path;
 
+	}
+
+	private double clamp(double n, double lClamp, double hClamp) {
+		if (n < lClamp) {
+			return lClamp;
+		} else if (n > hClamp) {
+			return hClamp;
+		} else {
+			return n;
+		}
 	}
 
 	private PathNode[] calcSpeed(PathNode[] checkpoints) {
@@ -213,7 +217,15 @@ public class Path {
 	}
 
 	public PathNode getCheckpoint(int n) {
-		return checkpoints[n];
+		if (n < checkpoints.length) {
+			return checkpoints[n];
+		} else {
+
+			// interpolate another point
+			Vector2 lastPos = getCheckpoint(n - 1).getPos();
+			Vector2 delta = Vector2.subtract(lastPos, getCheckpoint(n - 2).getPos());
+			return new PathNode(Vector2.add(lastPos, delta), 0);
+		}
 	}
 
 	public int getLength() {
