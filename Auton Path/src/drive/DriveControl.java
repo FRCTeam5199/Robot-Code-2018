@@ -23,10 +23,10 @@ public class DriveControl implements LoopModule {
 	private final double speed = 1;
 	private final double rSpeed = 400;
 	private final double radToDegrees = 180 / Math.PI;
-	private final double[] turnPIDDisplace = { 0.02, 0, 0.05 };
+	private final double[] turnPIDDisplace = { 0.02, 0, 0.08 };
 	private final double[] turnPIDRate = { 0.001, 0, 0.006 };
 	private final double[] movePIDDisplace = { 0, 0, 0 };
-	private final double[] movePIDRate = { 0.005, 0, 0.025 };
+	private final double[] movePIDRate = { 0.003, 0, 0.015 };
 
 	private final XBoxController controller;
 
