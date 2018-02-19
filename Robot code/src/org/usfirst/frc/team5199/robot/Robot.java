@@ -93,25 +93,10 @@ public class Robot extends SampleRobot {
 		ClockRegulator cl = new ClockRegulator(50);
 		AutonomousManager autManager = new AutonomousManager(cl);
 
-		// autManager.add(new Move(36, base, driveControl));
-		// autManager.add(new Turn(30, base, driveControl));
-		// autManager.add(new Turn(-45, base, driveControl));
-		// autManager.add(new TurnTo(0, base, driveControl));
-		// autManager.add(new Move(-36, base, driveControl));
-
-		autManager.add(new LowerArm(elevator, armControl));
-		autManager.add(new Sleep(3000));
-		autManager.add(new RaiseArm(elevator, armControl));
-		autManager.add(new Sleep(3000));
-		autManager.add(new LowerArm(elevator, armControl));
-		autManager.add(new MoveElevator(0, elevator, elevatorControl));
-		autManager.add(new BoxIn(gripper, arm, elevator, base));
+		autManager.add(new Move(103, base, driveControl));
 		autManager.add(new MoveElevator(36, elevator, elevatorControl));
-		autManager.add(new Move(48, base, driveControl));
-		autManager.add(new BoxOut(gripper, arm, elevator, base));
-		autManager.add(new RaiseArm(elevator, armControl));
-		autManager.add(new Sleep(1000));
-		autManager.add(new MoveElevator(0, elevator, elevatorControl));
+		autManager.add(new LowerArm(elevator, armControl));
+		autManager.add(new BoxOut(gripper, arm, elevator));
 
 		autManager.init();
 		while (isEnabled() && isAutonomous() && !autManager.isDone()) {
