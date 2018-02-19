@@ -21,7 +21,7 @@ public class DriveControl implements LoopModule {
 	private PIDController movePID;
 
 	private final double speed = 1;
-	private final double rSpeed = 400;
+	private final double rSpeed = 200;
 	private final double radToDegrees = 180 / Math.PI;
 	private final double[] turnPIDDisplace = { 0.06, 0, 0.2 };
 	private final double[] turnPIDRate = { 0.001, 0, 0.006 };
@@ -152,14 +152,9 @@ public class DriveControl implements LoopModule {
 
 	public void arcadeControlAssisted() {
 		baseTurnPID.setPIDSourceType(PIDSourceType.kRate);
-		// baseMovePID.setPIDSourceType(PIDSourceType.kDisplacement);
-
 		double targetTurnSpeed = controller.getStickRX() * rSpeed;
-		 setTurnPID(targetTurnSpeed);
-		// setTurnPID(0);
-		// setMovePID(controller.getStickLY() * 36);
+		setTurnPID(targetTurnSpeed);
 		base.applyTurnPID(controller.getStickLY());
-		base.applyPID();
 	}
 
 	public void pointControl(long delta) {
