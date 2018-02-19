@@ -12,17 +12,20 @@ public class ElevatorControl implements LoopModule {
 
 	private final JoystickController joystick;
 	private final Elevator elevator;
-	private boolean deadzoneLast;
+	private final int moveDuration = 850;
+
 	private double deadzone = .2;
 	private double targetPos = 0;
+	private long moveEndTime;
+	private boolean commitToMove;
+	private boolean macroRelease;
+	private boolean deadzoneLast;
 
 	private Interpolater smoother;
-	private EventTimer timer;
 
 	public ElevatorControl(Elevator elevator, JoystickController joystick) {
 		this.elevator = elevator;
 		this.joystick = joystick;
-		timer = new EventTimer(1 / 4d);
 		smoother = new Interpolater(2.1E-5, .2);
 	}
 
@@ -36,23 +39,44 @@ public class ElevatorControl implements LoopModule {
 		// SmartDashboard.putNumber("Interpolater accel", 0);
 
 		deadzoneLast = false;
+		commitToMove = false;
+		macroRelease = true;
+		moveEndTime = 0;
 		elevator.disablePID();
 	}
 
 	@Override
 	public void update(long delta) {
-
-		if (Math.abs(joystick.getYAxis()) < deadzone) {
-			if (!deadzoneLast) {
-				targetPos = elevator.getPosition();
-			}
-			elevator.setTarget(targetPos);
-			elevator.enablePID();
-			deadzoneLast = true;
+		if (commitToMove) {
+			commitToMove = System.currentTimeMillis() < moveEndTime;
 		} else {
-			elevator.disablePID();
-			elevator.setMotor(joystick.getYAxis() * joystick.getSlider());
-			deadzoneLast = false;
+			if (!joystick.getButton(2)) {
+				macroRelease = true;
+			}
+
+			if (joystick.getButton(2) && elevator.getEncoder().getDistance() < Elevator.deadzone && macroRelease) {
+				macroRelease = false;
+				elevator.setTarget(Elevator.deadzone + 1);
+				elevator.enablePID();
+
+				commitToMove = true;
+				moveEndTime = System.currentTimeMillis() + moveDuration;
+
+			} else {
+				if (Math.abs(joystick.getYAxis()) < deadzone) {
+					if (!deadzoneLast) {
+						targetPos = elevator.getPosition();
+					}
+					elevator.setTarget(targetPos);
+					elevator.enablePID();
+					deadzoneLast = true;
+				} else {
+					elevator.disablePID();
+					elevator.setMotor(joystick.getYAxis() * joystick.getSlider());
+					deadzoneLast = false;
+				}
+			}
+
 		}
 	}
 
