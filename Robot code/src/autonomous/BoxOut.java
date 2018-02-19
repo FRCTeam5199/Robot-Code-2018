@@ -13,17 +13,15 @@ public class BoxOut implements AutFunction {
 	private final Gripper gripper;
 	private final Arm arm;
 	private final Elevator elevator;
-	private final DriveBase base;
 	private double height;
 
 	private long endTime;
 	private long openTime;
 
-	public BoxOut(Gripper gripper, Arm arm, Elevator elevator, DriveBase base) {
+	public BoxOut(Gripper gripper, Arm arm, Elevator elevator) {
 		this.gripper = gripper;
 		this.arm = arm;
 		this.elevator = elevator;
-		this.base = base;
 	}
 
 	@Override
@@ -59,7 +57,6 @@ public class BoxOut implements AutFunction {
 
 	@Override
 	public void cleanUp() {
-		gripper.open();
 		gripper.setSpeed(0);
 	}
 }
