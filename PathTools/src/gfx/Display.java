@@ -2,20 +2,25 @@ package gfx;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.MouseInfo;
+import java.awt.image.BufferedImage;
 
 import javax.swing.JFrame;
 
 import maths.Vector2;
+import networking.RobotNetworkInterface;
 import path.Path;
 
 public class Display extends JFrame {
 
 	private final int borderSize = 50;
 
+	private final RobotNetworkInterface robotInterface;
 	private Path path;
 
-	public Display(Path path) {
+	public Display(RobotNetworkInterface robotInterface, Path path) {
 		super("Path Tools");
+		this.robotInterface = robotInterface;
 		this.path = path;
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -25,7 +30,17 @@ public class Display extends JFrame {
 	}
 
 	public void paint(Graphics g) {
-		super.paint(g);
+		g.drawImage(draw(), 0, 0, null);
+
+	}
+
+	private BufferedImage draw() {
+		BufferedImage output = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
+
+		Graphics g = output.getGraphics();
+
+		g.setColor(Color.DARK_GRAY);
+		g.fillRect(0, 0, getWidth(), getHeight());
 
 		int xMin = Integer.MAX_VALUE;
 		int xMax = Integer.MIN_VALUE;
@@ -70,14 +85,18 @@ public class Display extends JFrame {
 
 			color[i] = (int) (path.getCheckpoint(i).getSpeed() * colorScale);
 		}
-		
+
 		g.setColor(Color.LIGHT_GRAY);
-		
+
 		g.drawPolyline(xPoints, yPoints, path.getLength());
-		
-		for(int i = 0; i<path.getLength(); i++){
-			g.setColor(colorCycle(color[i]));
-			g.fillOval(xPoints[i]-5, yPoints[i]-5, 10, 10);
+
+		for (int i = 0; i < path.getLength(); i++) {
+			if (robotInterface.getCheckpointIndex() < i + 1) {
+				g.setColor(colorCycle(color[i]));
+			} else {
+				g.setColor(Color.GRAY);
+			}
+			g.fillOval(xPoints[i] - 5, yPoints[i] - 5, 10, 10);
 		}
 
 		for (int i = 0; i < 350; i++) {
@@ -90,6 +109,13 @@ public class Display extends JFrame {
 		g.drawString(maxSpeed + " in/s", 40, 395);
 		g.drawString("Start", xPoints[0], yPoints[0]);
 
+		Vector2 robotPos = robotInterface.getPosition();
+
+		g.setColor(Color.RED);
+		g.fillOval((int) ((robotPos.getX() - xMin) * scale) + borderSize - 5,
+				(int) ((height - robotPos.getY() + yMin) * scale) + borderSize - 5, 10, 10);
+
+		return output;
 	}
 
 	private Color colorCycle(double n) {
@@ -103,7 +129,7 @@ public class Display extends JFrame {
 	}
 
 	public void update() {
-		// repaint();
+		repaint();
 	}
 
 	public void setPath(Path path) {
