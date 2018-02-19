@@ -2,6 +2,7 @@ package path;
 
 import java.util.ArrayList;
 import maths.Vector2;
+import networking.ByteUtils;
 
 public class Path {
 
@@ -17,15 +18,26 @@ public class Path {
 
 	public Path(PathNode[] checkpoints) {
 		this.checkpoints = checkpoints;
+		checkpoints = calcTargetSpeed(checkpoints);
+		checkpoints = calcSpeed(checkpoints);
 	}
 
 	public Path(String data) {
-
 		checkpoints = parseStringData(data);
 		checkpoints = calcTargetSpeed(checkpoints);
 		checkpoints = calcSpeed(checkpoints);
+	}
 
-		System.out.println("Number of checkpoints: " + checkpoints.length);
+	public Path(byte[] data) {
+		checkpoints = new PathNode[data.length / 24];
+		for (int i = 0; i < checkpoints.length; i++) {
+			int blockStart = i * 24;
+			double x = ByteUtils.toDouble(ByteUtils.portionOf(data, blockStart, blockStart + 8));
+			double y = ByteUtils.toDouble(ByteUtils.portionOf(data, blockStart + 8, blockStart + 16));
+			double speed = ByteUtils.toDouble(ByteUtils.portionOf(data, blockStart + 16, blockStart + 24));
+
+			checkpoints[i] = new PathNode(new Vector2(x, y), speed);
+		}
 	}
 
 	private PathNode[] calcTargetSpeed(PathNode[] path) {
