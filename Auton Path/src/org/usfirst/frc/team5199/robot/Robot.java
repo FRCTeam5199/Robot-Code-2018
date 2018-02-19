@@ -8,6 +8,7 @@
 package org.usfirst.frc.team5199.robot;
 
 import path.FollowPath;
+import path.PathToolInterface;
 import path.RecordPath;
 import path.RecordedPaths;
 import controllers.XBoxController;
@@ -42,6 +43,7 @@ import util.ClockRegulator;
 public class Robot extends SampleRobot {
 
 	public static RemoteOutput nBroadcaster;
+	public static PathToolInterface toolInterface;;
 	public static Sensors sensors;
 
 	private ClockRegulator clockRegulator;
@@ -70,6 +72,8 @@ public class Robot extends SampleRobot {
 
 		base = new DriveBase();
 		driveControl = new DriveControl(base, xBox);
+		toolInterface = new PathToolInterface("10.51.99.206", 1181);
+
 	}
 
 	@Override
@@ -93,10 +97,11 @@ public class Robot extends SampleRobot {
 
 	@Override
 	public void operatorControl() {
-
+		Robot.nBroadcaster.println("teleop start");
+		sensors.getLocation().reset();
 		MainLoop mainLoop = new MainLoop(clockRegulator);
 
-		mainLoop.add(new FollowPath(driveControl, base, RecordedPaths.main2(), xBox));
+		mainLoop.add(new FollowPath(driveControl, base, RecordedPaths.main3(), xBox));
 
 		// mainLoop.add(driveControl);
 
@@ -106,7 +111,6 @@ public class Robot extends SampleRobot {
 		while (isOperatorControl() && isEnabled()) {
 			xBox.setLRumble(xBox.getLTrigger());
 			xBox.setRRumble(xBox.getRTrigger());
-
 			mainLoop.update();
 		}
 	}
