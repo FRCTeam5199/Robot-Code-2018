@@ -35,6 +35,7 @@ public class BoxIn implements AutFunction {
 	public void init() {
 		height = elevator.getPosition();
 		
+		base.setHighGear();
 		base.moveArcade(0.3, 0);
 
 		elevator.setTarget(height);

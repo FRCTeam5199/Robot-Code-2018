@@ -20,6 +20,8 @@ import gripper.Gripper;
 import gripper.GripperControl;
 import networking.RemoteOutput;
 import util.ClockRegulator;
+import wheelieBar.WheelieBar;
+import wheelieBar.WheelieBarControl;
 
 /**
  * This is a demo program showing the use of the RobotDrive class. The
@@ -51,12 +53,14 @@ public class Robot extends SampleRobot {
 	private Gripper gripper;
 	private Arm arm;
 	private Climber climber;
+	private WheelieBar wheelieBar;
 
 	private DriveControl driveControl;
 	private ElevatorControl elevatorControl;
 	private GripperControl gripperControl;
 	private ArmControl armControl;
 	private ClimberControl climberControl;
+	private WheelieBarControl wheelieBarControl;
 
 	public Robot() {
 
@@ -78,12 +82,14 @@ public class Robot extends SampleRobot {
 		gripper = new Gripper();
 		arm = new Arm();
 		climber = new Climber();
+		wheelieBar = new WheelieBar();
 
 		driveControl = new DriveControl(base, xBox);
 		elevatorControl = new ElevatorControl(elevator, joy);
 		gripperControl = new GripperControl(gripper, joy);
 		armControl = new ArmControl(arm, elevator.getEncoder(), joy);
 		climberControl = new ClimberControl(climber, joy);
+		wheelieBarControl = new WheelieBarControl(wheelieBar, joy);
 
 		Robot.nBroadcaster.println("Done!");
 	}
@@ -114,6 +120,7 @@ public class Robot extends SampleRobot {
 		mainLoop.add(gripperControl);
 		mainLoop.add(armControl);
 		mainLoop.add(climberControl);
+		mainLoop.add(wheelieBarControl);
 
 		mainLoop.init();
 

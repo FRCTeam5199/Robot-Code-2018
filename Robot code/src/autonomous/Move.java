@@ -27,6 +27,8 @@ public class Move implements AutFunction {
 	@Override
 	public void init() {
 		offset = base.getAvgDist();
+		
+		base.setHighGear();
 
 		driveControl.setMovePIDDisplace();
 		driveControl.setTurnPIDDisplace();

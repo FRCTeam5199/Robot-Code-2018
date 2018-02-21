@@ -28,6 +28,8 @@ public class TurnTo implements AutFunction {
 
 	@Override
 	public void init() {
+		
+		base.setHighGear();
 
 		driveControl.setTurnPIDDisplace();
 		driveControl.setTurnPID(angle);

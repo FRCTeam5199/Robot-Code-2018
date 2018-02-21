@@ -31,6 +31,8 @@ public class Turn implements AutFunction {
 	@Override
 	public void init() {
 		offset = gyro.getAngle();
+		
+		base.setHighGear();
 
 		driveControl.setTurnPIDDisplace();
 		driveControl.setTurnPID(angle + offset);

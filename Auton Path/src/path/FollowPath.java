@@ -28,7 +28,6 @@ public class FollowPath implements AutFunction, LoopModule {
 
 	private PathNode currentCheckpoint;
 	private int checkpointIndex;
-	private boolean aboveLine;
 
 	private boolean isDone;
 
@@ -74,7 +73,7 @@ public class FollowPath implements AutFunction, LoopModule {
 		double nodePerpSlope = -1 / nodeLineSlopes[checkpointIndex];
 		double yLine = lineEquation(pos.getX(), nodePerpSlope, currentCheckpoint.getPos());
 		Vector2 nextCheckpointPos = path.getCheckpoint(checkpointIndex + 1).getPos();
-		aboveLine = nextCheckpointPos.getY() > lineEquation(nextCheckpointPos.getX(), nodePerpSlope,
+		boolean aboveLine = nextCheckpointPos.getY() > lineEquation(nextCheckpointPos.getX(), nodePerpSlope,
 				currentCheckpoint.getPos());
 
 		return (pos.getY() > yLine && aboveLine) || (pos.getY() < yLine && !aboveLine);
@@ -86,7 +85,7 @@ public class FollowPath implements AutFunction, LoopModule {
 		double slope = nodeLineSlopes[checkpointIndex];
 		double perpSlope = -1 / slope;
 
-		double crossX = getXCross(slope, nodePos.getX(), nodePos.getY(), perpSlope, robotPos.getX(), robotPos.getY());
+		double crossX = getXCross(slope, nodePos, perpSlope, robotPos);
 
 		Vector2 cross = new Vector2(crossX, lineEquation(crossX, slope, nodePos));
 
@@ -107,8 +106,8 @@ public class FollowPath implements AutFunction, LoopModule {
 		return m * (x - p.getX()) + p.getY();
 	}
 
-	public double getXCross(double m1, double x1, double y1, double m2, double x2, double y2) {
-		return (m1 * x1 - y1 - m2 * x2 + y2) / (m1 - m2);
+	public double getXCross(double m1, Vector2 p1, double m2, Vector2 p2) {
+		return (m1 * p1.getX() - p1.getY() - m2 * p2.getX() + p2.getY()) / (m1 - m2);
 	}
 
 	public int sign(double d) {

@@ -8,6 +8,7 @@ public class RobotMap {
 
 	public static final int drivemotorRight = 8;
 	public static final int drivemotorLeft = 9;
+	public static final int gearboxPiston = 3;
 	public static final int leftEncoderA = 3 + mxpOffset;
 	public static final int leftEncoderB = 11 + mxpOffset;
 
@@ -23,5 +24,7 @@ public class RobotMap {
 
 	public static final int climberPiston = 1;
 	public static final int climberMotor = 3;
+
+	public static final int wheelieBarPiston = 4;
 
 }

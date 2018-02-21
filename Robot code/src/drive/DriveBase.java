@@ -5,11 +5,13 @@ import org.usfirst.frc.team5199.robot.RobotMap;
 
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Spark;
 
 public class DriveBase {
-	private Spark motorLeft;
-	private Spark motorRight;
+	private final Spark motorLeft;
+	private final Spark motorRight;
+	private final Solenoid gearboxPiston;
 
 	private final ADXRS450_Gyro gyro;
 	private final Encoder encoderLeft;
@@ -19,12 +21,13 @@ public class DriveBase {
 
 	public DriveBase() {
 		gyro = new ADXRS450_Gyro();
-		encoderLeft = new Encoder(RobotMap.leftEncoderA, RobotMap.leftEncoderB);
-		
-		encoderLeft.setDistancePerPulse(RobotMap.inchesPerPulse);
 
 		motorLeft = new Spark(RobotMap.drivemotorLeft);
 		motorRight = new Spark(RobotMap.drivemotorRight);
+		gearboxPiston = new Solenoid(RobotMap.gearboxPiston);
+
+		encoderLeft = new Encoder(RobotMap.leftEncoderA, RobotMap.leftEncoderB);
+		encoderLeft.setDistancePerPulse(RobotMap.inchesPerPulse);
 
 		Robot.nBroadcaster.println("Calibating gyro...");
 		gyro.calibrate();
@@ -39,12 +42,12 @@ public class DriveBase {
 	public Encoder getEncoderL() {
 		return encoderLeft;
 	}
-	
-	public double getAvgDist(){
+
+	public double getAvgDist() {
 		return encoderLeft.getDistance();
 	}
-	
-	public double getAvgRate(){
+
+	public double getAvgRate() {
 		return encoderLeft.getRate();
 	}
 
@@ -56,6 +59,18 @@ public class DriveBase {
 
 	public void moveArcade(double y, double x) {
 		move(y - x, y + x);
+	}
+
+	public void setGearbox(boolean b) {
+		gearboxPiston.set(b);
+	}
+
+	public void setLowGear() {
+		gearboxPiston.set(true);
+	}
+
+	public void setHighGear() {
+		gearboxPiston.set(false);
 	}
 
 	public void stop() {

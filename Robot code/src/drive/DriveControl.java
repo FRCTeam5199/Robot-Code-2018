@@ -56,6 +56,7 @@ public class DriveControl implements LoopModule {
 
 	@Override
 	public void update(long delta) {
+		base.setGearbox(controller.getButton(6));
 
 		selectDriveMode();
 		if (controller.getButton(8)) {
@@ -113,13 +114,6 @@ public class DriveControl implements LoopModule {
 		speedMultiplier += (1 - speed) * controller.getRTrigger();
 		right *= speedMultiplier;
 		left *= speedMultiplier;
-
-		// Left trigger straighten
-		double avg = (right + left) / 2;
-		double lTrigger = controller.getLTrigger();
-		double notLTrigger = 1 - lTrigger;
-		right = notLTrigger * right + avg * lTrigger;
-		left = notLTrigger * left + avg * lTrigger;
 
 		base.move(right, left);
 		// Robot.nBroadcaster.println(gyro.getRate());
@@ -318,10 +312,6 @@ public class DriveControl implements LoopModule {
 
 	public void resetMovePID() {
 		movePID.reset();
-	}
-
-	public DriveBase getBase() {
-		return base;
 	}
 
 	public enum DriveMode {
