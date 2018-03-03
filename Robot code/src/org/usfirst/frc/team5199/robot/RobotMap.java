@@ -4,7 +4,11 @@ public class RobotMap {
 	private static final int mxpOffset = 10;
 	// public static final double inchesPerPulse = 6 * Math.PI * 3 * 3 / 1024;
 	// public static final double inchesPerPulse = 4;
-	public static final double inchesPerPulse = 6 * Math.PI / 120;
+
+	// Comp Robot
+	// public static final double inchesPerPulse = 6 * Math.PI / 120;
+	// Test Robot
+	public static final double inchesPerPulse = 6 * Math.PI / 1024;
 
 	public static final int drivemotorRight = 8;
 	public static final int drivemotorLeft = 9;
