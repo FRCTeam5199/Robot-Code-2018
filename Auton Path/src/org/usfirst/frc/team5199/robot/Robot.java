@@ -11,6 +11,7 @@ import path.FollowPath;
 import path.PathToolInterface;
 import path.RecordPath;
 import path.RecordedPaths;
+import autonomous.AutonomousManager;
 import controllers.XBoxController;
 import drive.DriveBase;
 import drive.DriveControl;
@@ -79,18 +80,16 @@ public class Robot extends SampleRobot {
 	@Override
 	public void autonomous() {
 
-		MainLoop mainLoop = new MainLoop(clockRegulator);
+		AutonomousManager autManager = new AutonomousManager(clockRegulator);
 
-		// mainLoop.add(new FollowPath(driveControl, base, RecordedPaths.test(),
-		// xBox));
-
+		autManager.add(new FollowPath(true, RecordedPaths.outside(), driveControl, base, xBox));
 		// mainLoop.add(driveControl);
 
 		// mainLoop.add(pathFollower);
 
-		mainLoop.init();
+		autManager.init();
 		while (isAutonomous() && isEnabled()) {
-			mainLoop.update();
+			autManager.update();
 		}
 
 	}
@@ -101,7 +100,7 @@ public class Robot extends SampleRobot {
 		sensors.getLocation().reset();
 		MainLoop mainLoop = new MainLoop(clockRegulator);
 
-		mainLoop.add(new FollowPath(driveControl, base, RecordedPaths.main3(), xBox));
+		mainLoop.add(new FollowPath(false, RecordedPaths.outside(), driveControl, base, xBox));
 
 		// mainLoop.add(driveControl);
 
