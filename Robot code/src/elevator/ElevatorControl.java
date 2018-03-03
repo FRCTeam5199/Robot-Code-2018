@@ -13,6 +13,7 @@ public class ElevatorControl implements LoopModule {
 	private final JoystickController joystick;
 	private final Elevator elevator;
 	private final int moveDuration = 850;
+	private final int maxHeight = 85;
 
 	private double deadzone = .2;
 	private double targetPos = 0;
@@ -71,9 +72,15 @@ public class ElevatorControl implements LoopModule {
 					elevator.enablePID();
 					deadzoneLast = true;
 				} else {
-					elevator.disablePID();
-					elevator.setMotor(joystick.getYAxis() * joystick.getSlider());
-					deadzoneLast = false;
+					if (joystick.getYAxis() > 0 && elevator.getPosition() >= maxHeight - 1) {
+						// nothing
+						elevator.setTarget(maxHeight);
+						elevator.enablePID();
+					} else {
+						elevator.disablePID();
+						elevator.setMotor(joystick.getYAxis() * joystick.getSlider());
+						deadzoneLast = false;
+					}
 				}
 			}
 
