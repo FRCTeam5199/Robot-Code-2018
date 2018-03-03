@@ -19,6 +19,7 @@ import elevator.ElevatorControl;
 import gripper.Gripper;
 import gripper.GripperControl;
 import networking.RemoteOutput;
+import path.PathToolInterface;
 import util.ClockRegulator;
 import wheelieBar.WheelieBar;
 import wheelieBar.WheelieBarControl;
@@ -43,6 +44,7 @@ import wheelieBar.WheelieBarControl;
 public class Robot extends SampleRobot {
 
 	public static RemoteOutput nBroadcaster;
+	public static PathToolInterface toolInterface;
 	// public static SmartDashboard dashboard;
 
 	private XBoxController xBox;
@@ -91,7 +93,8 @@ public class Robot extends SampleRobot {
 		climberControl = new ClimberControl(climber, joy);
 		wheelieBarControl = new WheelieBarControl(wheelieBar, joy);
 
-		Robot.nBroadcaster.println("Done!");
+		toolInterface = new PathToolInterface("10.51.99.78", 1181, base.getLocation());
+		Robot.nBroadcaster.println("Ready");
 	}
 
 	@Override
@@ -135,7 +138,7 @@ public class Robot extends SampleRobot {
 		ClockRegulator cl = new ClockRegulator(50);
 
 		while (isEnabled() && isTest()) {
-			Robot.nBroadcaster.println(base.getEncoderL().getRaw() + "\t" + base.getEncoderL().getDistance());
+			Robot.nBroadcaster.println(base.getLocation().getLocation() + "\t" + base.getEncoderL().getDistance());
 			cl.sync();
 		}
 	}
