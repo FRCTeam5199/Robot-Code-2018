@@ -7,11 +7,11 @@
 
 package org.usfirst.frc.team5199.robot;
 
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.SampleRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import networking.RemoteOutput;
 import sensors.Location;
-import sensors.Sensors;
 import util.ClockRegulator;
 
 /**
@@ -36,16 +36,15 @@ import util.ClockRegulator;
 public class Robot extends SampleRobot {
 
 	public static RemoteOutput nBroadcaster;
-	private Sensors sensors;
 
 	public Robot() {
 	}
 
 	@Override
 	public void robotInit() {
-		nBroadcaster = new RemoteOutput("10.51.99.206", 1180);
+		nBroadcaster = new RemoteOutput("169.254.240.118", 1180);
 		Robot.nBroadcaster.println("Starting up...");
-		sensors = new Sensors();
+		//sensors = new Sensors();
 	}
 
 	@Override
@@ -78,12 +77,10 @@ public class Robot extends SampleRobot {
 	@Override
 	public void operatorControl() {
 		ClockRegulator regulator = new ClockRegulator(100);
-		Location loc = sensors.getLocation();
 		// while (isOperatorControl() && isEnabled()) {
 		// Robot.nBroadcaster.println(loc.getLocation());
 		// regulator.sync();
 		// }
-		loc.reset();
 	}
 
 	/**
@@ -91,7 +88,12 @@ public class Robot extends SampleRobot {
 	 */
 	@Override
 	public void test() {
+		ClockRegulator cl = new ClockRegulator(50);
+		Encoder encoder = new Encoder(RobotMap.liftEncoderA,RobotMap.liftEncoderB);
+		
 		while (isTest() && isEnabled()) {
+			Robot.nBroadcaster.println(encoder.getDistance());
+			cl.sync();
 		}
 	}
 }
