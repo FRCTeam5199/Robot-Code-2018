@@ -22,6 +22,7 @@ public class FollowPath implements AutFunction, LoopModule {
 	private final DriveBase base;
 	private final Location loc;
 	private final Path path;
+	private final boolean isAutonomous;
 
 	private double[] nodeLineSlopes;
 	private double[] nodeLineAngles;
@@ -31,12 +32,14 @@ public class FollowPath implements AutFunction, LoopModule {
 
 	private boolean isDone;
 
-	public FollowPath(DriveControl driveControl, DriveBase base, Path path, XBoxController controller) {
+	public FollowPath(boolean isAutonomous, Path path, DriveControl driveControl, DriveBase base,
+			XBoxController controller) {
 		this.controller = controller;
 		this.driveControl = driveControl;
 		this.base = base;
 		this.path = path;
 
+		this.isAutonomous = isAutonomous;
 		isDone = false;
 		loc = Robot.sensors.getLocation();
 	}
@@ -48,7 +51,7 @@ public class FollowPath implements AutFunction, LoopModule {
 
 			driveControl.setTurnPID(nodeLineAngles[checkpointIndex] * radToDeg - error * crossTrackP);
 			driveControl.setMovePID(currentCheckpoint.getSpeed());
-			if (controller.getButton(1)) {
+			if (isAutonomous || controller.getButton(1)) {
 				base.applyPID();
 			} else {
 				base.move(0, 0);
@@ -158,6 +161,11 @@ public class FollowPath implements AutFunction, LoopModule {
 	@Override
 	public boolean isDone() {
 		return isDone;
+	}
+
+	@Override
+	public void cleanUp() {
+		base.stop();
 	}
 
 }
