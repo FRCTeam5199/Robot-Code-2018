@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Spark;
+import sensors.Location;
 
 public class DriveBase {
 	private final Spark motorLeft;
@@ -15,6 +16,7 @@ public class DriveBase {
 
 	private final ADXRS450_Gyro gyro;
 	private final Encoder encoderLeft;
+	private final Location location;
 
 	private double PIDturn;
 	private double PIDmove;
@@ -33,6 +35,9 @@ public class DriveBase {
 		gyro.calibrate();
 		Robot.nBroadcaster.println("done");
 		gyro.reset();
+
+		location = new Location(gyro, encoderLeft, encoderLeft);
+		location.start();
 	}
 
 	public ADXRS450_Gyro getGyro() {
@@ -41,6 +46,10 @@ public class DriveBase {
 
 	public Encoder getEncoderL() {
 		return encoderLeft;
+	}
+
+	public Location getLocation() {
+		return location;
 	}
 
 	public double getAvgDist() {
