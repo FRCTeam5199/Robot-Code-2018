@@ -13,7 +13,8 @@ public class Path {
 	private final double turnRadiusSpeedK = 6;
 	private final double maxAccel = 6; // inches per second squared
 	private final double startEndSpeed = 2;
-	private final double maxSpeed = 55;
+	// private final double maxSpeed = 55;
+	private final double maxSpeed = 80;
 
 	private PathNode[] checkpoints;
 
