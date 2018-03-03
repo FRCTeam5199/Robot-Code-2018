@@ -81,6 +81,10 @@ public class Vector2 implements Comparable<Vector2> {
 		}
 	}
 
+	public static double getSlope(Vector2 v1, Vector2 v2) {
+		return (v1.getY() - v2.getY()) / (v1.getX() - v2.getX());
+	}
+
 	public static Vector2 add(Vector2 v1, Vector2 v2) {
 		return new Vector2(v1.x + v2.x, v1.y + v2.y);
 	}
@@ -121,6 +125,10 @@ public class Vector2 implements Comparable<Vector2> {
 
 	public static Vector2 rotateDegCW(Vector2 v, double d) {
 		return rotateDeg(v, -d);
+	}
+
+	public static double distance(Vector2 v1, Vector2 v2) {
+		return Vector2.subtract(v1, v2).length();
 	}
 
 }
