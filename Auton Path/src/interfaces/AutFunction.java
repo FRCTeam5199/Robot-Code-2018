@@ -22,4 +22,6 @@ public interface AutFunction {
 	 * @return Does the code in update(long) need to be run anymore.
 	 */
 	public boolean isDone();
+	
+	public void cleanUp();
 }
