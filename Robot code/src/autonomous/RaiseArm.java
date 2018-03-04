@@ -14,8 +14,6 @@ public class RaiseArm implements AutFunction {
 
 	private long stopTime = -1;
 	private double startPos;
-	private boolean moved;
-	private boolean isDone;
 
 	public RaiseArm(Elevator elevator, ArmControl armControl) {
 		this.elevator = elevator;
@@ -35,14 +33,10 @@ public class RaiseArm implements AutFunction {
 	@Override
 	public void init() {
 		// TODO Auto-generated method stub
-		isDone = false;
-		moved = false;
-		startPos = elevator.getPosition();
 		if (elevator.getPosition() < Elevator.deadzone) {
 			elevator.setTarget(Elevator.deadzone + 2);
-			moved = true;
 		} else {
-			moved = false;
+			elevator.setTarget(elevator.getPosition());
 		}
 
 		elevator.enablePID();
@@ -61,8 +55,5 @@ public class RaiseArm implements AutFunction {
 	@Override
 	public void cleanUp() {
 		// TODO Auto-generated method stub
-		if (moved) {
-			elevator.setTarget(startPos);
-		}
 	}
 }
