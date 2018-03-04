@@ -41,7 +41,6 @@ public class Elevator {
 	}
 
 	public void disablePID() {
-		Robot.nBroadcaster.println("disable elevator PID");
 		elevatorPID.disable();
 	}
 
@@ -52,7 +51,6 @@ public class Elevator {
 	}
 
 	public void setTarget(double d) {
-		Robot.nBroadcaster.println("set elevator target " + d);
 		elevatorPID.setSetpoint(d);
 	}
 
