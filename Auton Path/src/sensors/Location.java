@@ -45,7 +45,7 @@ public class Location implements Runnable {
 
 	}
 
-	private double getRot() {
+	public double getRot() {
 		return degToRad * (gyro.getAngle() - gyroZero);
 	}
 

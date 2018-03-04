@@ -18,6 +18,7 @@ public class RobotNetworkInterface implements Runnable {
 	private boolean newPath;
 	private Path path;
 	private Vector2 position;
+	private double rotation;
 	private int checkpointIndex;
 
 	public RobotNetworkInterface(int port) {
@@ -26,6 +27,7 @@ public class RobotNetworkInterface implements Runnable {
 		position = Vector2.ZERO.clone();
 		newPath = false;
 		path = RecordedPaths.main2();
+		rotation = 0;
 		checkpointIndex = 0;
 		this.port = port;
 
@@ -71,9 +73,11 @@ public class RobotNetworkInterface implements Runnable {
 			case 0:
 				newPath = true;
 				path = new Path(ByteUtils.portionOf(data, 4, packet.getLength()));
+				checkpointIndex = 0;
 			case 1:
 				position.setX(ByteUtils.toDouble(ByteUtils.portionOf(data, 4, 12)));
 				position.setY(ByteUtils.toDouble(ByteUtils.portionOf(data, 12, 20)));
+				rotation = ByteUtils.toDouble(ByteUtils.portionOf(data, 20, 28));
 				break;
 			case 2:
 				checkpointIndex = ByteUtils.toInt(ByteUtils.portionOf(data, 4, 8));
@@ -99,6 +103,10 @@ public class RobotNetworkInterface implements Runnable {
 
 	public Vector2 getPosition() {
 		return position;
+	}
+
+	public double getRot() {
+		return rotation;
 	}
 
 	public int getCheckpointIndex() {

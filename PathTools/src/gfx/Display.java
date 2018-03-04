@@ -18,6 +18,13 @@ public class Display extends JFrame {
 	private final RobotNetworkInterface robotInterface;
 	private Path path;
 
+	private double scale;
+	private double maxSpeed;
+	private double colorScale;
+	private double dWidth;
+	private double dHeight;
+	private Vector2 origin;
+
 	public Display(RobotNetworkInterface robotInterface, Path path) {
 		super("Path Tools");
 		this.robotInterface = robotInterface;
@@ -31,7 +38,6 @@ public class Display extends JFrame {
 
 	public void paint(Graphics g) {
 		g.drawImage(draw(), 0, 0, null);
-
 	}
 
 	private BufferedImage draw() {
@@ -42,11 +48,19 @@ public class Display extends JFrame {
 		g.setColor(Color.DARK_GRAY);
 		g.fillRect(0, 0, getWidth(), getHeight());
 
+		configGraph();
+		drawGrid(g);
+		drawPath(g);
+		drawScale(g);
+		drawRobot(g);
+		return output;
+	}
+
+	private void configGraph() {
 		int xMin = Integer.MAX_VALUE;
 		int xMax = Integer.MIN_VALUE;
 		int yMin = Integer.MAX_VALUE;
 		int yMax = Integer.MIN_VALUE;
-		double maxSpeed = 0;
 
 		for (int i = 0; i < path.getLength(); i++) {
 			Vector2 pos = path.getCheckpoint(i).getPos();
@@ -68,20 +82,49 @@ public class Display extends JFrame {
 			}
 		}
 
-		int width = xMax - xMin;
-		int height = yMax - yMin;
+		dWidth = xMax - xMin;
+		dHeight = yMax - yMin;
 
-		double scale = Math.min((getWidth() - 2d * borderSize) / width, (getHeight() - 2d * borderSize) / height);
-		double colorScale = 700d / maxSpeed;
+		scale = Math.min((getWidth() - 2d * borderSize) / dWidth, (getHeight() - 2d * borderSize) / dHeight);
+		colorScale = 700d / maxSpeed;
 
+		origin = new Vector2(-xMin * scale, -yMin * scale);
+
+	}
+
+	private void drawGrid(Graphics g) {
+		double height = getHeight() / scale;
+		double width = getWidth() / scale;
+
+		g.setColor(Color.GRAY);
+
+		for (int y = toScreenY(0); y < getHeight(); y += (toScreenY(0) - toScreenY(12))) {
+			g.drawLine(0, y, getWidth(), y);
+		}
+
+		for (int y = toScreenY(0); y > 0; y -= (toScreenY(0) - toScreenY(12))) {
+			g.drawLine(0, y, getWidth(), y);
+		}
+
+		for (int x = toScreenX(0); x < getWidth(); x += (toScreenX(12) - toScreenX(0))) {
+			g.drawLine(x, 0, x, getHeight());
+		}
+
+		for (int x = toScreenX(0); x > 0; x -= (toScreenX(12) - toScreenX(0))) {
+			g.drawLine(x, 0, x, getHeight());
+		}
+
+	}
+
+	private void drawPath(Graphics g) {
 		int[] xPoints = new int[path.getLength()];
 		int[] yPoints = new int[path.getLength()];
 		int[] color = new int[path.getLength()];
 
 		for (int i = 0; i < path.getLength(); i++) {
 			Vector2 pos = path.getCheckpoint(i).getPos();
-			xPoints[i] = (int) (scale * (pos.getX() - xMin)) + borderSize;
-			yPoints[i] = (int) (scale * (height - pos.getY() + yMin)) + borderSize;
+			xPoints[i] = (int) ((scale * pos.getX()) + origin.getX()) + borderSize;
+			yPoints[i] = (int) ((scale * (dHeight - pos.getY()) - origin.getY())) + borderSize;
 
 			color[i] = (int) (path.getCheckpoint(i).getSpeed() * colorScale);
 		}
@@ -96,26 +139,46 @@ public class Display extends JFrame {
 			} else {
 				g.setColor(Color.GRAY);
 			}
-			g.fillOval(xPoints[i] - 5, yPoints[i] - 5, 10, 10);
+			Vector2 pos = path.getCheckpoint(i).getPos();
+			plot(pos.getX(), pos.getY(), g);
 		}
 
+		g.setColor(Color.WHITE);
+		g.drawString("Start", xPoints[0], yPoints[0]);
+
+	}
+
+	private void drawScale(Graphics g) {
 		for (int i = 0; i < 350; i++) {
 			g.setColor(colorCycle(2 * i));
 			g.drawLine(10, i + 40, 30, i + 40);
 		}
 
-		g.setColor(Color.white);
+		g.setColor(Color.WHITE);
 		g.drawString("0 in/s", 40, 45);
 		g.drawString(maxSpeed + " in/s", 40, 395);
-		g.drawString("Start", xPoints[0], yPoints[0]);
+	}
 
+	private void drawRobot(Graphics g) {
 		Vector2 robotPos = robotInterface.getPosition();
 
 		g.setColor(Color.RED);
-		g.fillOval((int) ((robotPos.getX() - xMin) * scale) + borderSize - 5,
-				(int) ((height - robotPos.getY() + yMin) * scale) + borderSize - 5, 10, 10);
+		plot(robotPos.getX(), robotPos.getY(), g);
+		g.drawLine((int) robotPos.getX(), (int) robotPos.getY(),
+				(int) (robotPos.getX() + 20 * Math.sin(robotInterface.getRot())),
+				(int) (robotPos.getY() + 20 * Math.cos(robotInterface.getRot())));
+	}
 
-		return output;
+	private void plot(double x, double y, Graphics g) {
+		g.fillOval(toScreenX(x) - 5, toScreenY(y) - 5, 10, 10);
+	}
+
+	private int toScreenX(double x) {
+		return (int) (x * scale + origin.getX()) + borderSize;
+	}
+
+	private int toScreenY(double y) {
+		return (int) ((dHeight - y) * scale - origin.getY()) + borderSize;
 	}
 
 	private Color colorCycle(double n) {
@@ -133,6 +196,7 @@ public class Display extends JFrame {
 	}
 
 	public void setPath(Path path) {
+		maxSpeed = 0;
 		this.path = path;
 	}
 

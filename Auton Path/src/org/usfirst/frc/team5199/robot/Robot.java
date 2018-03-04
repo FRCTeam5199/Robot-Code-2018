@@ -120,7 +120,7 @@ public class Robot extends SampleRobot {
 	@Override
 	public void test() {
 		while (isTest() && isEnabled()) {
-
+			Robot.nBroadcaster.println(sensors.getLocation().getLocation());
 		}
 	}
 }

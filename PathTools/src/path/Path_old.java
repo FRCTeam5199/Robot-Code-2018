@@ -1,39 +1,34 @@
 package path;
 
 import java.util.ArrayList;
-
 import maths.Vector2;
 import networking.ByteUtils;
 
-public class Path {
+public class Path_old {
 
 	private final double radToDeg = 180d / Math.PI;
-	private final double radiusBufferDist = 36;
-	private final double turnRadiusSpeedK = 6;
+	private final double radiusBufferDist = 24;
+	private final double turnRadiusSpeedK = 4;
 	private final double maxAccel = 6; // inches per second squared
 	private final double startEndSpeed = 2;
-	// private final double maxSpeed = 55;
-	private final double maxSpeed = 80;
 
 	private PathNode[] checkpoints;
 
 	int index = -1;
 
-	public Path(PathNode[] checkpoints) {
+	public Path_old(PathNode[] checkpoints) {
 		this.checkpoints = checkpoints;
+		checkpoints = calcTargetSpeed(checkpoints);
+		checkpoints = calcSpeed(checkpoints);
 	}
 
-	public Path(String data) {
+	public Path_old(String data) {
 		checkpoints = parseStringData(data);
 		checkpoints = calcTargetSpeed(checkpoints);
 		checkpoints = calcSpeed(checkpoints);
-
-		for (PathNode n : checkpoints) {
-			System.out.println(n);
-		}
 	}
 
-	public Path(byte[] data) {
+	public Path_old(byte[] data) {
 		checkpoints = new PathNode[data.length / 24];
 		for (int i = 0; i < checkpoints.length; i++) {
 			int blockStart = i * 24;
@@ -107,33 +102,12 @@ public class Path {
 
 			path[i].setSpeed(Math.sqrt(radiusSum / radiusBuffer.size()) * turnRadiusSpeedK);
 
-			if (path[i].getSpeed() == Double.NaN || Double.isInfinite(path[i].getSpeed())) {
-				System.out.println("==========================================================");
-				System.out.println(radiusSum + "\t" + radiusBuffer.size() + "\t" + radiusSum / radiusBuffer.size());
-				System.out.println(path[i]);
-				System.exit(-1);
-			}
 		}
 
 		path[0].setSpeed(startEndSpeed);
 		path[path.length - 1].setSpeed(startEndSpeed);
-
-		for (int i = 0; i < path.length; i++) {
-			path[i].setSpeed(clamp(path[i].getSpeed(), 0, maxSpeed));
-		}
-
 		return path;
 
-	}
-
-	private double clamp(double n, double lClamp, double hClamp) {
-		if (n < lClamp) {
-			return lClamp;
-		} else if (n > hClamp) {
-			return hClamp;
-		} else {
-			return n;
-		}
 	}
 
 	private PathNode[] calcSpeed(PathNode[] checkpoints) {
@@ -233,15 +207,7 @@ public class Path {
 	}
 
 	public PathNode getCheckpoint(int n) {
-		if (n < checkpoints.length) {
-			return checkpoints[n];
-		} else {
-
-			// interpolate another point
-			Vector2 lastPos = getCheckpoint(n - 1).getPos();
-			Vector2 delta = Vector2.subtract(lastPos, getCheckpoint(n - 2).getPos());
-			return new PathNode(Vector2.add(lastPos, delta), 0);
-		}
+		return checkpoints[n];
 	}
 
 	public int getLength() {
