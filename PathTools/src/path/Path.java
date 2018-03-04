@@ -8,12 +8,12 @@ import networking.ByteUtils;
 public class Path {
 
 	private final double radToDeg = 180d / Math.PI;
-	private final double radiusBufferDist = 36;
+	private final double radiusBufferDist = 24;
 	private final double turnRadiusSpeedK = 6;
 	private final double maxAccel = 6; // inches per second squared
 	private final double startEndSpeed = 2;
 	// private final double maxSpeed = 55;
-	private final double maxSpeed = 80;
+	private final double maxSpeed = 100;
 
 	private PathNode[] checkpoints;
 
@@ -27,10 +27,6 @@ public class Path {
 		checkpoints = parseStringData(data);
 		checkpoints = calcTargetSpeed(checkpoints);
 		checkpoints = calcSpeed(checkpoints);
-
-		for (PathNode n : checkpoints) {
-			System.out.println(n);
-		}
 	}
 
 	public Path(byte[] data) {
@@ -46,6 +42,64 @@ public class Path {
 	}
 
 	private PathNode[] calcTargetSpeed(PathNode[] path) {
+
+		for (int i = 0; i < path.length; i++) {
+			int aheadLead = 0;
+			int behindLag = 0;
+
+			Vector2 current = path[i].getPos();
+			Vector2 ahead = path[i + aheadLead].getPos();
+			Vector2 behind = current;
+
+			Vector2 last = current;
+
+			double aheadDist = 0;
+			double behindDist = 0;
+			while (aheadDist <= radiusBufferDist / 2 && i + aheadLead < path.length - 1) {
+				aheadLead++;
+				last = ahead;
+				ahead = path[i + aheadLead].getPos();
+				aheadDist += Vector2.distance(last, ahead);
+			}
+
+			last = current;
+
+			while (behindDist <= radiusBufferDist / 2 && i - behindLag > 0) {
+				behindLag++;
+				last = behind;
+				behind = path[i - behindLag].getPos();
+				behindDist += Vector2.distance(last, ahead);
+			}
+
+			path[i].setSpeed(Math.sqrt(circleRadius(ahead, current, behind))*turnRadiusSpeedK);
+
+		}
+
+		path[0].setSpeed(startEndSpeed);
+		path[path.length - 1].setSpeed(startEndSpeed);
+
+		for (int i = 0; i < path.length; i++) {
+			path[i].setSpeed(clamp(path[i].getSpeed(), 0, maxSpeed));
+		}
+
+		return path;
+	}
+
+	private double circleRadius(Vector2 a, Vector2 b, Vector2 c) {
+		// r = ABC/4K
+		double ab = Vector2.distance(a, b);
+		double bc = Vector2.distance(b, c);
+		double ca = Vector2.distance(c, a);
+		return (ab * bc * ca) / (4 * triangleArea(a, b, c));
+	}
+
+	private double triangleArea(Vector2 a, Vector2 b, Vector2 c) {
+		// A = 1/2*abs((x2-x1)(y3-y1)-(x3-x1)(y2-y1))
+		return .5 * Math
+				.abs((b.getX() - a.getX()) * (c.getY() - a.getY()) - (c.getX() - a.getX()) * (b.getY() - a.getY()));
+	}
+
+	private PathNode[] calcTargetSpeedOld(PathNode[] path) {
 		Vector2 n0 = path[0].getPos();
 		Vector2 n1 = path[1].getPos();
 		Vector2 last = n0;
@@ -98,7 +152,7 @@ public class Path {
 				fBufferLead--;
 			}
 
-			while (distSumR > radiusBufferDist / 2) {
+			while (distSumR > radiusBufferDist / 2 && radiusBuffer.size() > 1) {
 				double distRm = distBufferR.remove(0);
 				distSumR -= distRm;
 				double radRm = radiusBuffer.remove(0);
@@ -107,10 +161,14 @@ public class Path {
 
 			path[i].setSpeed(Math.sqrt(radiusSum / radiusBuffer.size()) * turnRadiusSpeedK);
 
+			System.out.println(distSumF + "\t" + distBufferF.size() + "\t|\t" + distSumR + "\t" + distBufferR.size());
+
 			if (path[i].getSpeed() == Double.NaN || Double.isInfinite(path[i].getSpeed())) {
 				System.out.println("==========================================================");
 				System.out.println(radiusSum + "\t" + radiusBuffer.size() + "\t" + radiusSum / radiusBuffer.size());
-				System.out.println(path[i]);
+				System.out.println(path[i - 1]);
+				System.out.println("*" + path[i]);
+				System.out.println(path[i + 1]);
 				System.exit(-1);
 			}
 		}

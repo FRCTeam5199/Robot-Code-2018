@@ -5,6 +5,8 @@
  */
 package maths;
 
+import java.awt.Point;
+
 /**
  *
  * @author 18wakayamats
@@ -42,6 +44,11 @@ public class Vector2 implements Comparable<Vector2> {
 		this.y = other.y;
 	}
 
+	public Vector2(Point p) {
+		this.x = p.getX();
+		this.y = p.getY();
+	}
+
 	public double getX() {
 		return x;
 	}
@@ -69,7 +76,7 @@ public class Vector2 implements Comparable<Vector2> {
 
 	@Override
 	public String toString() {
-		return x + "," + y;
+		return x + ", " + y;
 	}
 
 	@Override
