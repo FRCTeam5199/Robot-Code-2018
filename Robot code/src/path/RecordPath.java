@@ -11,7 +11,7 @@ public class RecordPath implements LoopModule {
 
 	private final XBoxController xBox;
 
-	private final int recMoveThreshold = 3;
+	private final int recMoveThreshold = 6;
 
 	private final Location loc;
 
@@ -40,7 +40,7 @@ public class RecordPath implements LoopModule {
 			lastPos = currentPos;
 		}
 
-		if (xBox.getButton(1)) {
+		if (xBox.getButton(8)) {
 			System.out.println();
 		}
 
