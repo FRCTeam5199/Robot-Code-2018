@@ -5,11 +5,12 @@ import java.util.ArrayList;
 import org.usfirst.frc.team5199.robot.Robot;
 
 import maths.Vector2;
+import networking.ByteUtils;
 
 public class Path {
 
 	private final double radToDeg = 180d / Math.PI;
-	private final double radiusBufferDist = 24;
+	private final double radiusBufferDist = 48;
 	private final double turnRadiusSpeedK = 6;
 	private final double maxAccel = 6; // inches per second squared
 	private final double startEndSpeed = 2;
@@ -34,6 +35,18 @@ public class Path {
 		checkpoints = calcSpeed(checkpoints);
 
 		Robot.nBroadcaster.println("Number of checkpoints: " + checkpoints.length);
+	}
+	
+	public Path(byte[] data) {
+		checkpoints = new PathNode[data.length / 24];
+		for (int i = 0; i < checkpoints.length; i++) {
+			int blockStart = i * 24;
+			double x = ByteUtils.toDouble(ByteUtils.portionOf(data, blockStart, blockStart + 8));
+			double y = ByteUtils.toDouble(ByteUtils.portionOf(data, blockStart + 8, blockStart + 16));
+			double speed = ByteUtils.toDouble(ByteUtils.portionOf(data, blockStart + 16, blockStart + 24));
+
+			checkpoints[i] = new PathNode(new Vector2(x, y), speed);
+		}
 	}
 
 	private PathNode[] calcTargetSpeed(PathNode[] path) {
