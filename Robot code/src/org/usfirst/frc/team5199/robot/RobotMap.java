@@ -8,13 +8,16 @@ public class RobotMap {
 	// Comp Robot
 	// public static final double inchesPerPulse = 6 * Math.PI / 120;
 	// Test Robot
-	public static final double inchesPerPulse = 6 * Math.PI / 1024;
+	public static final double inchesPerPulseL = 6 * Math.PI / 1024;
+	public static final double inchesPerPulseR = 6 * Math.PI / 360;
 
 	public static final int drivemotorRight = 8;
 	public static final int drivemotorLeft = 9;
 	public static final int gearboxPiston = 3;
 	public static final int leftEncoderA = 3 + mxpOffset;
 	public static final int leftEncoderB = 11 + mxpOffset;
+	// public static final int rightEncoderA = 0;
+	// public static final int rightEncoderB = 1;
 
 	public static final int liftMotor = 0;
 	public static final int liftEncoderA = 0 + mxpOffset;
