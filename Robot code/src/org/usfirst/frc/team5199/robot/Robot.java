@@ -13,13 +13,17 @@ import controllers.XBoxController;
 import drive.DriveBase;
 import drive.DriveControl;
 import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.SampleRobot;
 import elevator.Elevator;
 import elevator.ElevatorControl;
 import gripper.Gripper;
 import gripper.GripperControl;
 import networking.RemoteOutput;
+import path.FollowPath;
 import path.PathToolInterface;
+import path.RecordPath;
+import path.RecordedPaths;
 import util.ClockRegulator;
 import wheelieBar.WheelieBar;
 import wheelieBar.WheelieBarControl;
@@ -64,6 +68,8 @@ public class Robot extends SampleRobot {
 	private ClimberControl climberControl;
 	private WheelieBarControl wheelieBarControl;
 
+	private RecordPath recordPath;
+
 	public Robot() {
 
 	}
@@ -93,6 +99,8 @@ public class Robot extends SampleRobot {
 		climberControl = new ClimberControl(climber, joy);
 		wheelieBarControl = new WheelieBarControl(wheelieBar, joy);
 
+		recordPath = new RecordPath(xBox, base.getLocation());
+
 		toolInterface = new PathToolInterface("10.51.99.78", 1181, base.getLocation());
 		Robot.nBroadcaster.println("Ready");
 	}
@@ -102,11 +110,10 @@ public class Robot extends SampleRobot {
 		ClockRegulator cl = new ClockRegulator(50);
 		AutonomousManager autManager = new AutonomousManager(cl);
 
-		autManager.add(new Move(103, base, driveControl));
-		autManager.add(new MoveElevator(36, elevator, elevatorControl));
-		autManager.add(new LowerArm(elevator, armControl));
-		autManager.add(new BoxOut(gripper, arm, elevator));
-
+		// autManager.add(new LowerArm(elevator, armControl));
+		// autManager.add(new MoveElevator(30, elevator, elevatorControl));
+		autManager.add(new FollowPath(true, RecordedPaths.main2(), driveControl, base, xBox));
+		// autManager.add(new BoxOut(gripper, arm, elevator));
 		autManager.init();
 		while (isEnabled() && isAutonomous() && !autManager.isDone()) {
 			autManager.update();
@@ -136,9 +143,12 @@ public class Robot extends SampleRobot {
 	@Override
 	public void test() {
 		ClockRegulator cl = new ClockRegulator(50);
-
+		MainLoop mainLoop = new MainLoop(cl);
+		mainLoop.add(driveControl);
+		mainLoop.add(recordPath);
+		mainLoop.init();
 		while (isEnabled() && isTest()) {
-			Robot.nBroadcaster.println(base.getLocation().getLocation() + "\t" + base.getEncoderL().getDistance());
+			mainLoop.update();
 			cl.sync();
 		}
 	}
