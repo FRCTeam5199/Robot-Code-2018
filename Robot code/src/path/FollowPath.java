@@ -49,7 +49,9 @@ public class FollowPath implements AutFunction, LoopModule {
 		if (!isDone) {
 			double error = getCrossTrackError();
 
-			driveControl.setTurnPID(nodeLineAngles[checkpointIndex] * radToDeg - error * crossTrackP);
+			Robot.nBroadcaster.println(error * crossTrackP + "\t" + clamp(error * crossTrackP, 180, -180));
+
+			driveControl.setTurnPID(nodeLineAngles[checkpointIndex] * radToDeg - clamp(error * crossTrackP, 90, -90));
 			driveControl.setMovePID(currentCheckpoint.getSpeed());
 			if (isAutonomous || controller.getButton(1)) {
 				base.applyPID();
@@ -156,6 +158,16 @@ public class FollowPath implements AutFunction, LoopModule {
 		currentCheckpoint = path.getCheckpoint();
 		checkpointIndex = 0;
 		path.reset();
+	}
+
+	private double clamp(double n, double max, double min) {
+		if (n > max) {
+			return max;
+		} else if (n < min) {
+			return min;
+		} else {
+			return n;
+		}
 	}
 
 	@Override
