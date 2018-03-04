@@ -23,10 +23,18 @@ public class DriveControl implements LoopModule {
 	private final double speed = 1;
 	private final double rSpeed = 200;
 	private final double radToDegrees = 180 / Math.PI;
-	private final double[] turnPIDDisplace = { 0.06, 0, 0.2 };
+
+	// Comp robot
+	// private final double[] turnPIDDisplace = { 0.06, 0, 0.2 };
+	// private final double[] turnPIDRate = { 0.001, 0, 0.006 };
+	// private final double[] movePIDDisplace = { 0.1, 0, 0.5 };
+	// private final double[] movePIDRate = { 0.005, 0, 0.025 };
+
+	// Test robot
+	private final double[] turnPIDDisplace = { 0.03, 0, 0.078 };
 	private final double[] turnPIDRate = { 0.001, 0, 0.006 };
-	private final double[] movePIDDisplace = { 0.1, 0, 0.5 };
-	private final double[] movePIDRate = { 0.005, 0, 0.025 };
+	private final double[] movePIDDisplace = { 0.1, 0, 0.39 };
+	private final double[] movePIDRate = { 0.002, 0, 0.01 };
 
 	private final XBoxController controller;
 
@@ -38,7 +46,7 @@ public class DriveControl implements LoopModule {
 	public DriveControl(DriveBase base, XBoxController controller) {
 		this.base = base;
 		this.controller = controller;
-		driveMode = DriveMode.POINT;
+		driveMode = DriveMode.ARCADE_ASSISTED;
 
 		baseMovePID = new DriveBaseMovePID(base);
 		baseTurnPID = new DriveBaseTurnPID(base);
@@ -96,7 +104,7 @@ public class DriveControl implements LoopModule {
 		} else if (controller.getButton(3)) {
 			driveMode = DriveMode.ARCADE_ASSISTED;
 			enableTurnPID();
-			disableMovePID();
+			enableMovePID();
 			// disableMovePID();
 		} else if (controller.getButton(4)) {
 			disableTurnPID();
@@ -145,6 +153,7 @@ public class DriveControl implements LoopModule {
 	}
 
 	public void arcadeControlAssisted() {
+		enableMovePID();
 		baseTurnPID.setPIDSourceType(PIDSourceType.kRate);
 		double targetTurnSpeed = controller.getStickRX() * rSpeed;
 		setTurnPID(targetTurnSpeed);
@@ -180,9 +189,15 @@ public class DriveControl implements LoopModule {
 	}
 
 	public void adjustTurnPID() {
-		turnPIDDisplace[0] = SmartDashboard.getNumber("Turn P", 0);
-		turnPIDDisplace[1] = SmartDashboard.getNumber("Turn I", 0);
-		turnPIDDisplace[2] = SmartDashboard.getNumber("Turn D", 0);
+		if (baseMovePID.getPIDSourceType() == PIDSourceType.kDisplacement) {
+			turnPIDDisplace[0] = SmartDashboard.getNumber("Turn P", 0);
+			turnPIDDisplace[1] = SmartDashboard.getNumber("Turn I", 0);
+			turnPIDDisplace[2] = SmartDashboard.getNumber("Turn D", 0);
+		} else if (baseMovePID.getPIDSourceType() == PIDSourceType.kRate) {
+			turnPIDRate[0] = SmartDashboard.getNumber("Turn P", 0);
+			turnPIDRate[1] = SmartDashboard.getNumber("Turn I", 0);
+			turnPIDRate[2] = SmartDashboard.getNumber("Turn D", 0);
+		}
 	}
 
 	public void initAdjustTurnPID() {
@@ -266,9 +281,15 @@ public class DriveControl implements LoopModule {
 	}
 
 	public void adjustMovePID() {
-		movePIDDisplace[0] = SmartDashboard.getNumber("Move P", 0);
-		movePIDDisplace[1] = SmartDashboard.getNumber("Move I", 0);
-		movePIDDisplace[2] = SmartDashboard.getNumber("Move D", 0);
+		if (baseTurnPID.getPIDSourceType() == PIDSourceType.kDisplacement) {
+			movePIDDisplace[0] = SmartDashboard.getNumber("Move P", 0);
+			movePIDDisplace[1] = SmartDashboard.getNumber("Move I", 0);
+			movePIDDisplace[2] = SmartDashboard.getNumber("Move D", 0);
+		} else if (baseTurnPID.getPIDSourceType() == PIDSourceType.kRate) {
+			movePIDRate[0] = SmartDashboard.getNumber("Move P", 0);
+			movePIDRate[1] = SmartDashboard.getNumber("Move I", 0);
+			movePIDRate[2] = SmartDashboard.getNumber("Move D", 0);
+		}
 	}
 
 	public void initAdjustMovePID() {

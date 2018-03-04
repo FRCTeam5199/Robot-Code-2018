@@ -19,6 +19,7 @@ public class DriveBaseMovePID implements PIDSource, PIDOutput {
 		this.base = base;
 		left = base.getEncoderL();
 		right = left;
+		// right = base.getEncoderR();
 
 		pidSourceType = PIDSourceType.kRate;
 
@@ -40,6 +41,7 @@ public class DriveBaseMovePID implements PIDSource, PIDOutput {
 	}
 
 	@Override
+	
 	public double pidGet() {
 		if (pidSourceType == PIDSourceType.kDisplacement) {
 			return (left.getDistance() + right.getDistance()) / 2;

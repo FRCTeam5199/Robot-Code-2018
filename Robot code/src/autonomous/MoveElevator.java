@@ -1,5 +1,7 @@
 package autonomous;
 
+import org.usfirst.frc.team5199.robot.Robot;
+
 import elevator.Elevator;
 import elevator.ElevatorControl;
 import interfaces.AutFunction;
@@ -20,6 +22,7 @@ public class MoveElevator implements AutFunction {
 	@Override
 	public void update(long deltaTime) {
 		elevatorControl.setPositionSmooth(height, deltaTime);
+		Robot.nBroadcaster.println(elevator.getPosition());
 	}
 
 	@Override

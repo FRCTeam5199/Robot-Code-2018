@@ -16,6 +16,7 @@ public class DriveBase {
 
 	private final ADXRS450_Gyro gyro;
 	private final Encoder encoderLeft;
+//	private final Encoder encoderRight;
 	private final Location location;
 
 	private double PIDturn;
@@ -29,7 +30,9 @@ public class DriveBase {
 		gearboxPiston = new Solenoid(RobotMap.gearboxPiston);
 
 		encoderLeft = new Encoder(RobotMap.leftEncoderA, RobotMap.leftEncoderB);
-		encoderLeft.setDistancePerPulse(RobotMap.inchesPerPulse);
+//		encoderRight = new Encoder(RobotMap.rightEncoderA, RobotMap.rightEncoderB);
+		encoderLeft.setDistancePerPulse(RobotMap.inchesPerPulseL);
+//		encoderRight.setDistancePerPulse(RobotMap.inchesPerPulseR);
 
 		Robot.nBroadcaster.println("Calibating gyro...");
 		gyro.calibrate();
@@ -48,15 +51,21 @@ public class DriveBase {
 		return encoderLeft;
 	}
 
+//	public Encoder getEncoderR() {
+//		return encoderRight;
+//	}
+
 	public Location getLocation() {
 		return location;
 	}
 
 	public double getAvgDist() {
+		//return (encoderLeft.getDistance() + encoderRight.getDistance()) / 2;
 		return encoderLeft.getDistance();
 	}
 
 	public double getAvgRate() {
+		//return (encoderLeft.getRate() + encoderRight.getRate()) / 2;
 		return encoderLeft.getRate();
 	}
 
