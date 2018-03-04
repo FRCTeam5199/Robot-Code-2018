@@ -3,6 +3,7 @@ package gfx;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.MouseInfo;
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 
 import javax.swing.JFrame;
@@ -10,8 +11,11 @@ import javax.swing.JFrame;
 import maths.Vector2;
 import networking.RobotNetworkInterface;
 import path.Path;
+import path.PathNode;
 
 public class Display extends JFrame {
+
+	private final double inPerMeter = 39.3701;
 
 	private final int borderSize = 50;
 
@@ -53,6 +57,7 @@ public class Display extends JFrame {
 		drawPath(g);
 		drawScale(g);
 		drawRobot(g);
+		mouseOverInfo(g);
 		return output;
 	}
 
@@ -93,8 +98,6 @@ public class Display extends JFrame {
 	}
 
 	private void drawGrid(Graphics g) {
-		double height = getHeight() / scale;
-		double width = getWidth() / scale;
 
 		g.setColor(Color.GRAY);
 
@@ -169,6 +172,33 @@ public class Display extends JFrame {
 				(int) (robotPos.getY() + 20 * Math.cos(robotInterface.getRot())));
 	}
 
+	private void mouseOverInfo(Graphics g) {
+		if (getMousePosition() == null) {
+			return;
+		}
+
+		Vector2 mousePos = new Vector2(getMousePosition());
+
+		for (int i = 0; i < path.getLength(); i++) {
+			Vector2 disPos = toScreen(path.getCheckpoint(i).getPos());
+			int x = (int) disPos.getX();
+			int y = (int) disPos.getY();
+
+			if (Vector2.distance(mousePos, disPos) < 10) {
+				PathNode node = path.getCheckpoint(i);
+
+				g.setColor(flashCycle(colorCycle(node.getSpeed() * colorScale), 1000));
+				g.fillOval(x - 10, y - 10, 20, 20);
+				g.setColor(Color.WHITE);
+				g.drawOval(x - 10, y - 10, 20, 20);
+				g.drawString("Node " + i + " : " + node.getPos(), x + 20, y + 20);
+				g.drawString("Speed: " + node.getSpeed() + " in/s", x + 20, y + 35);
+				g.drawString("              " + node.getSpeed() / inPerMeter + " m/s", x + 20, y + 50);
+				return;
+			}
+		}
+	}
+
 	private void plot(double x, double y, Graphics g) {
 		g.fillOval(toScreenX(x) - 5, toScreenY(y) - 5, 10, 10);
 	}
@@ -181,6 +211,10 @@ public class Display extends JFrame {
 		return (int) ((dHeight - y) * scale - origin.getY()) + borderSize;
 	}
 
+	private Vector2 toScreen(Vector2 p) {
+		return new Vector2(toScreenX(p.getX()), toScreenY(p.getY()));
+	}
+
 	private Color colorCycle(double n) {
 		n += 250;
 		n *= 2 * Math.PI / 1000;
@@ -189,6 +223,20 @@ public class Display extends JFrame {
 		int b = (int) (Math.sin(n + 4 / 3d * Math.PI) * 127.5 + 127.5);
 
 		return new Color(r, g, b);
+	}
+
+	private Color flashCycle(Color input, double period) {
+		int brightness = (int) (40 + 40 * Math.sin((2 * Math.PI * System.currentTimeMillis()) / period));
+		return new Color(clampInt(brightness + input.getRed(), 255), clampInt(brightness + input.getGreen(), 255),
+				clampInt(brightness + input.getBlue(), 255));
+	}
+
+	private int clampInt(int input, int max) {
+		if (input > max) {
+			return max;
+		} else {
+			return input;
+		}
 	}
 
 	public void update() {
