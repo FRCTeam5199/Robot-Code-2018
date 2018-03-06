@@ -114,7 +114,6 @@ public class Robot extends SampleRobot {
 		// autManager.add(new MoveElevator(30, elevator, elevatorControl));
 		autManager.add(new FollowPath(true, RecordedPaths.main2(), driveControl, base, xBox));
 		// autManager.add(new BoxOut(gripper, arm, elevator));
-		autManager.init();
 		while (isEnabled() && isAutonomous() && !autManager.isDone()) {
 			autManager.update();
 		}
