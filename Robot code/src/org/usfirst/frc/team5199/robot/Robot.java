@@ -110,10 +110,16 @@ public class Robot extends SampleRobot {
 		ClockRegulator cl = new ClockRegulator(50);
 		AutonomousManager autManager = new AutonomousManager(cl);
 
-		// autManager.add(new LowerArm(elevator, armControl));
-		// autManager.add(new MoveElevator(30, elevator, elevatorControl));
-		autManager.add(new FollowPath(true, RecordedPaths.main2(), driveControl, base, xBox));
-		// autManager.add(new BoxOut(gripper, arm, elevator));
+		Multi toSwitch = new Multi(2);
+		
+		toSwitch.add(0, new FollowPath(true, RecordedPaths.switchR(), driveControl, base, xBox));
+		toSwitch.add(1, new LowerArm(elevator, armControl));
+		toSwitch.add(1, new MoveElevator(30, elevator, elevatorControl));
+		
+		autManager.add(toSwitch);
+		
+		autManager.add(new BoxOut(gripper, arm, elevator));
+		
 		while (isEnabled() && isAutonomous() && !autManager.isDone()) {
 			autManager.update();
 		}
