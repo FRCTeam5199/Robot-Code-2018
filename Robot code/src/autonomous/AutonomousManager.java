@@ -4,14 +4,8 @@ import java.util.ArrayList;
 
 import org.usfirst.frc.team5199.robot.Robot;
 
-import arm.Arm;
-import climber.Climber;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import elevator.Elevator;
-import gripper.Gripper;
 import interfaces.AutFunction;
 import util.ClockRegulator;
-import drive.DriveBase;
 
 public class AutonomousManager {
 	private final ArrayList<AutFunction> functions;
@@ -19,20 +13,24 @@ public class AutonomousManager {
 
 	private int step;
 	private boolean done;
+	private boolean firstRun;
 
 	public AutonomousManager(ClockRegulator clockRegulator) {
 		this.clockRegulator = clockRegulator;
 
 		functions = new ArrayList<AutFunction>();
 		step = 0;
-	}
-
-	public void init() {
-		functions.get(0).init();
+		firstRun = true;
 		done = false;
 	}
 
 	public void update() {
+		if (firstRun) {
+			functions.get(0).init();
+		}
+
+		firstRun = false;
+
 		if (step < functions.size()) {
 			functions.get(step).update(clockRegulator.getMsPerUpdate());
 			if (functions.get(step).isDone()) {
