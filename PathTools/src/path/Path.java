@@ -10,8 +10,9 @@ public class Path {
 	private final double radToDeg = 180d / Math.PI;
 	private final double radiusBufferDist = 24;
 	private final double turnRadiusSpeedK = 6;
-	private final double maxAccel = 6; // inches per second squared
-	private final double startEndSpeed = 2;
+	private final double maxAccel = 24; // inches per second squared
+	private final double startSpeed = 6;
+	private final double endSpeed = 2;
 	// private final double maxSpeed = 55;
 	private final double maxSpeed = 100;
 
@@ -71,12 +72,12 @@ public class Path {
 				behindDist += Vector2.distance(last, ahead);
 			}
 
-			path[i].setSpeed(Math.sqrt(circleRadius(ahead, current, behind))*turnRadiusSpeedK);
+			path[i].setSpeed(Math.sqrt(circleRadius(ahead, current, behind)) * turnRadiusSpeedK);
 
 		}
 
-		path[0].setSpeed(startEndSpeed);
-		path[path.length - 1].setSpeed(startEndSpeed);
+		path[0].setSpeed(startSpeed);
+		path[path.length - 1].setSpeed(endSpeed);
 
 		for (int i = 0; i < path.length; i++) {
 			path[i].setSpeed(clamp(path[i].getSpeed(), 0, maxSpeed));
@@ -97,91 +98,6 @@ public class Path {
 		// A = 1/2*abs((x2-x1)(y3-y1)-(x3-x1)(y2-y1))
 		return .5 * Math
 				.abs((b.getX() - a.getX()) * (c.getY() - a.getY()) - (c.getX() - a.getX()) * (b.getY() - a.getY()));
-	}
-
-	private PathNode[] calcTargetSpeedOld(PathNode[] path) {
-		Vector2 n0 = path[0].getPos();
-		Vector2 n1 = path[1].getPos();
-		Vector2 last = n0;
-
-		ArrayList<Double> radiusBuffer = new ArrayList<Double>();
-		ArrayList<Double> distBufferF = new ArrayList<Double>();
-		ArrayList<Double> distBufferR = new ArrayList<Double>();
-		double distSumF = 0;
-		double distSumR = 0;
-		double radiusSum = 0;
-
-		int fBufferLead = -1;
-
-		double lastTheta = radToDeg * Math.atan2(n1.getY() - n0.getY(), n1.getX() - n0.getY());
-		for (int i = 1; i < path.length - 1; i++) {
-			double absRadius = 0;
-
-			while (distSumF < radiusBufferDist / 2) {
-				fBufferLead++;
-
-				if (i + fBufferLead >= path.length) {
-					radiusBuffer.add(0.0);
-					double lastDist = distBufferF.get(distBufferF.size() - 1);
-					distBufferF.add(lastDist);
-					distSumF += lastDist;
-					break;
-				}
-
-				Vector2 current = path[i + fBufferLead].getPos();
-				double d = Vector2.distance(last, current);
-				double theta = radToDeg * Math.atan2(current.getY() - last.getY(), current.getX() - last.getX());
-
-				double dTheta = theta - lastTheta;
-
-				absRadius = Math.abs((180 * d) / (dTheta * Math.PI));
-
-				lastTheta = theta;
-				last = current;
-
-				radiusBuffer.add(absRadius);
-				radiusSum += absRadius;
-				distBufferF.add(d);
-				distSumF += d;
-			}
-			while (distSumF > radiusBufferDist / 2) {
-				double distRm = distBufferF.remove(0);
-				distSumF -= distRm;
-				distBufferR.add(distRm);
-				distSumR += distRm;
-				fBufferLead--;
-			}
-
-			while (distSumR > radiusBufferDist / 2 && radiusBuffer.size() > 1) {
-				double distRm = distBufferR.remove(0);
-				distSumR -= distRm;
-				double radRm = radiusBuffer.remove(0);
-				radiusSum -= radRm;
-			}
-
-			path[i].setSpeed(Math.sqrt(radiusSum / radiusBuffer.size()) * turnRadiusSpeedK);
-
-			System.out.println(distSumF + "\t" + distBufferF.size() + "\t|\t" + distSumR + "\t" + distBufferR.size());
-
-			if (path[i].getSpeed() == Double.NaN || Double.isInfinite(path[i].getSpeed())) {
-				System.out.println("==========================================================");
-				System.out.println(radiusSum + "\t" + radiusBuffer.size() + "\t" + radiusSum / radiusBuffer.size());
-				System.out.println(path[i - 1]);
-				System.out.println("*" + path[i]);
-				System.out.println(path[i + 1]);
-				System.exit(-1);
-			}
-		}
-
-		path[0].setSpeed(startEndSpeed);
-		path[path.length - 1].setSpeed(startEndSpeed);
-
-		for (int i = 0; i < path.length; i++) {
-			path[i].setSpeed(clamp(path[i].getSpeed(), 0, maxSpeed));
-		}
-
-		return path;
-
 	}
 
 	private double clamp(double n, double lClamp, double hClamp) {

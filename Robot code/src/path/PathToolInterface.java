@@ -67,6 +67,7 @@ public class PathToolInterface {
 		data = addArray(data, ByteUtils.toByteArray(pos.getX()));
 		data = addArray(data, ByteUtils.toByteArray(pos.getY()));
 		data = addArray(data, ByteUtils.toByteArray(location.getRot()));
+		data = addArray(data, ByteUtils.toByteArray(location.getBaseVelocity()));
 		sendData(data);
 	}
 
