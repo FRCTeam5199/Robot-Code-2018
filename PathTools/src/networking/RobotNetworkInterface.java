@@ -13,13 +13,18 @@ public class RobotNetworkInterface implements Runnable {
 	private final Thread t;
 	private final int port;
 	private DatagramSocket socket;
+
+	private final Vector2 robotDim = new Vector2(28 + 7, 33 + 7);
+	private final Vector2 pivotPos = new Vector2(robotDim.getX() / 2, 5);
+
 	private boolean isAlive;
 
-	private boolean newPath;
 	private Path path;
 	private Vector2 position;
 	private double rotation;
+	private double velocity;
 	private int checkpointIndex;
+	private boolean newPath;
 
 	public RobotNetworkInterface(int port) {
 		t = new Thread(this, "Robot network interface");
@@ -28,9 +33,9 @@ public class RobotNetworkInterface implements Runnable {
 		newPath = false;
 		path = RecordedPaths.main2();
 		rotation = 0;
+		velocity = 0;
 		checkpointIndex = 0;
 		this.port = port;
-
 	}
 
 	public void start() {
@@ -78,6 +83,7 @@ public class RobotNetworkInterface implements Runnable {
 				position.setX(ByteUtils.toDouble(ByteUtils.portionOf(data, 4, 12)));
 				position.setY(ByteUtils.toDouble(ByteUtils.portionOf(data, 12, 20)));
 				rotation = ByteUtils.toDouble(ByteUtils.portionOf(data, 20, 28));
+				velocity = ByteUtils.toDouble(ByteUtils.portionOf(data, 28, 34));
 				break;
 			case 2:
 				checkpointIndex = ByteUtils.toInt(ByteUtils.portionOf(data, 4, 8));
@@ -109,7 +115,19 @@ public class RobotNetworkInterface implements Runnable {
 		return rotation;
 	}
 
+	public double getVelocity() {
+		return velocity;
+	}
+
 	public int getCheckpointIndex() {
 		return checkpointIndex;
+	}
+
+	public Vector2 getDim() {
+		return robotDim;
+	}
+
+	public Vector2 getPivotPos() {
+		return pivotPos;
 	}
 }
