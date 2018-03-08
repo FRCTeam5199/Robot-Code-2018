@@ -84,38 +84,46 @@ public class Location implements Runnable {
 	@Override
 	public void run() {
 		while (isAlive) {
-			// // two encoder
-			// double avgDistance = (deltaRight() + deltaLeft()) / 2d;
-			// double dAngle = deltaAngle();
-			//
+			// two encoder
+			// ------------------------------------------------------------------
+
+			double avgDistance = (deltaRight() + deltaLeft()) / 2d;
+			double dAngle = deltaAngle();
+
+			Vector2 delta;
+
+			if (dAngle == 0) {
+				delta = new Vector2(0, avgDistance);
+			} else {
+				double radius = avgDistance / dAngle;
+				delta = new Vector2(radius * (1 - Math.cos(dAngle)), radius * Math.sin(dAngle));
+				delta = Vector2.rotateCW(delta, getRot());
+			}
+
+			location = Vector2.add(location, delta);
+
+			// ------------------------------------------------------------------
+
+			// // single encoder
+			// //
+			// ------------------------------------------------------------------
 			// Vector2 delta;
 			//
+			// double lDist = deltaLeft();
+			// double dAngle = deltaAngle();
+			//
 			// if (dAngle == 0) {
-			// delta = new Vector2(0, avgDistance);
+			// delta = new Vector2(0, lDist);
 			// } else {
-			// double radius = avgDistance / dAngle;
+			// double radius = (lDist - dAngle * wheelOffset) / dAngle;
 			// delta = new Vector2(radius * (1 - Math.cos(dAngle)), radius *
 			// Math.sin(dAngle));
 			// delta = Vector2.rotateCW(delta, getRot());
 			// }
 			//
 			// location = Vector2.add(location, delta);
-
-			// single encoder
-			Vector2 delta;
-
-			double lDist = deltaLeft();
-			double dAngle = deltaAngle();
-
-			if (dAngle == 0) {
-				delta = new Vector2(0, lDist);
-			} else {
-				double radius = (lDist - dAngle * wheelOffset) / dAngle;
-				delta = new Vector2(radius * (1 - Math.cos(dAngle)), radius * Math.sin(dAngle));
-				delta = Vector2.rotateCW(delta, getRot());
-			}
-
-			location = Vector2.add(location, delta);
+			// //
+			// ------------------------------------------------------------------
 
 			regulator.sync();
 			if (Robot.toolInterface != null) {
