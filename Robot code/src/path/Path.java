@@ -7,11 +7,10 @@ import networking.ByteUtils;
 
 public class Path {
 
-	private final double radToDeg = 180d / Math.PI;
 	private final double radiusBufferDist = 24;
-	private final double turnRadiusSpeedK = 6;
+	private final double turnRadiusSpeedK = 5;
 	private final double maxAccel = 24; // inches per second squared
-	private final double startSpeed = 6;
+	private final double startSpeed = 4;
 	private final double endSpeed = 2;
 	// private final double maxSpeed = 55;
 	private final double maxSpeed = 100;
