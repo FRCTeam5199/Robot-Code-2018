@@ -28,6 +28,7 @@ public class FollowPath implements AutFunction, LoopModule {
 	private double[] nodeLineAngles;
 
 	private PathNode currentCheckpoint;
+	private PathNode lastCheckpoint;
 	private int checkpointIndex;
 
 	private boolean isDone;
@@ -51,8 +52,36 @@ public class FollowPath implements AutFunction, LoopModule {
 
 			Robot.nBroadcaster.println(error * crossTrackP + "\t" + clamp(error * crossTrackP, 180, -180));
 
-			driveControl.setTurnPID(nodeLineAngles[checkpointIndex] * radToDeg - clamp(error * crossTrackP, 90, -90));
-			driveControl.setMovePID(currentCheckpoint.getSpeed());
+			double dCurrent = Vector2.distance(loc.getLocation(), currentCheckpoint.getPos());
+			double dLast = Vector2.distance(loc.getLocation(), lastCheckpoint.getPos());
+
+			double interpAngle;
+			double interpSpeed;
+
+			if (dCurrent + dLast != 0 && checkpointIndex > 0) {
+				interpSpeed = (dCurrent * lastCheckpoint.getSpeed() + dLast * currentCheckpoint.getSpeed())
+						/ (dCurrent + dLast);
+
+				double lastAngle = nodeLineAngles[checkpointIndex - 1];
+				double currentAngle = nodeLineAngles[checkpointIndex];
+
+				if (lastAngle - currentAngle > Math.PI) {
+					currentAngle += 2 * Math.PI;
+				} else if (currentAngle - lastAngle > Math.PI) {
+					lastAngle += 2 * Math.PI;
+				}
+
+				interpAngle = (dCurrent * lastAngle + dLast * currentAngle) / (dCurrent + dLast);
+			} else {
+				interpSpeed = currentCheckpoint.getSpeed();
+				interpAngle = nodeLineAngles[checkpointIndex];
+			}
+
+			interpAngle *= radToDeg;
+
+			driveControl.setTurnPID(interpAngle - clamp(error * crossTrackP, 90, -90));
+			driveControl.setMovePID(interpSpeed);
+
 			if (isAutonomous || controller.getButton(1)) {
 				base.applyPID();
 			} else {
@@ -63,6 +92,7 @@ public class FollowPath implements AutFunction, LoopModule {
 				Robot.toolInterface.setCheckpointIndex(checkpointIndex);
 				checkpointIndex++;
 				if (checkpointIndex < path.getLength()) {
+					lastCheckpoint = currentCheckpoint;
 					currentCheckpoint = path.getCheckpoint(checkpointIndex);
 				} else {
 					isDone = true;
@@ -156,6 +186,7 @@ public class FollowPath implements AutFunction, LoopModule {
 		driveControl.enableTurnPID();
 		driveControl.enableMovePID();
 		currentCheckpoint = path.getCheckpoint();
+		lastCheckpoint = currentCheckpoint;
 		checkpointIndex = 0;
 		path.reset();
 	}
