@@ -16,6 +16,7 @@ public class RecordPath implements LoopModule {
 	private final Location loc;
 
 	private Vector2 lastPos;
+	private String recording;
 
 	public RecordPath(XBoxController xBox, Location location) {
 		this.xBox = xBox;
@@ -23,6 +24,8 @@ public class RecordPath implements LoopModule {
 		loc = location;
 
 		lastPos = loc.getLocation();
+
+		recording = "";
 	}
 
 	@Override
@@ -36,12 +39,13 @@ public class RecordPath implements LoopModule {
 		Vector2 currentPos = loc.getLocation();
 
 		if (Vector2.distance(currentPos, lastPos) > recMoveThreshold) {
-			System.out.print("|" + currentPos);
+			recording += "|" + currentPos;
 			lastPos = currentPos;
 		}
 
 		if (xBox.getButton(8)) {
-			System.out.println();
+			System.out.println(recording + "|");
+			recording = "";
 		}
 
 	}
