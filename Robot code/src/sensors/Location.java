@@ -136,6 +136,10 @@ public class Location implements Runnable {
 		return location.clone();
 	}
 
+	public double getBaseVelocity() {
+		return (wheelsLeft.getRate() + wheelsRight.getRate()) / 2;
+	}
+
 	public void reset() {
 		location = Vector2.ZERO.clone();
 		gyroZero = gyro.getAngle();
