@@ -34,7 +34,7 @@ public class DriveControl implements LoopModule {
 	private final double[] turnPIDDisplace = { 0.03, 0, 0.078 };
 	private final double[] turnPIDRate = { 0.001, 0, 0.006 };
 	private final double[] movePIDDisplace = { 0.1, 0, 0.39 };
-	private final double[] movePIDRate = { 0.002, 0, 0.01 };
+	private final double[] movePIDRate = { 0.002, .1, 0.01 };
 
 	private final XBoxController controller;
 
@@ -60,12 +60,14 @@ public class DriveControl implements LoopModule {
 	public void init() {
 		turnPID.enable();
 		movePID.disable();
+		//initAdjustMovePID();
 	}
 
 	@Override
 	public void update(long delta) {
 		base.setGearbox(controller.getButton(6));
-
+		//adjustMovePID();
+		
 		selectDriveMode();
 		if (controller.getButton(8)) {
 			//
@@ -153,10 +155,14 @@ public class DriveControl implements LoopModule {
 	}
 
 	public void arcadeControlAssisted() {
-		enableMovePID();
+		//enableMovePID();
 		baseTurnPID.setPIDSourceType(PIDSourceType.kRate);
+		//baseMovePID.setPIDSourceType(PIDSourceType.kRate);
 		double targetTurnSpeed = controller.getStickRX() * rSpeed;
+		double movespeed = controller.getStickLY()*80;
 		setTurnPID(targetTurnSpeed);
+		//setMovePID(movespeed);
+		//base.applyPID();
 		base.applyTurnPID(controller.getStickLY());
 	}
 
