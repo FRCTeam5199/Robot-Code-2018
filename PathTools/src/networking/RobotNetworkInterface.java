@@ -14,8 +14,8 @@ public class RobotNetworkInterface implements Runnable {
 	private final int port;
 	private DatagramSocket socket;
 
-	private final Vector2 robotDim = new Vector2(28 + 7, 33 + 7);
-	private final Vector2 pivotPos = new Vector2(robotDim.getX() / 2, 5);
+	private final Vector2 robotDim = new Vector2(34, 39);
+	private final Vector2 pivotPos = new Vector2(robotDim.getX() / 2, 4.625);
 
 	private boolean isAlive;
 
@@ -83,7 +83,7 @@ public class RobotNetworkInterface implements Runnable {
 				position.setX(ByteUtils.toDouble(ByteUtils.portionOf(data, 4, 12)));
 				position.setY(ByteUtils.toDouble(ByteUtils.portionOf(data, 12, 20)));
 				rotation = ByteUtils.toDouble(ByteUtils.portionOf(data, 20, 28));
-				velocity = ByteUtils.toDouble(ByteUtils.portionOf(data, 28, 34));
+				velocity = ByteUtils.toDouble(ByteUtils.portionOf(data, 28, 36));
 				break;
 			case 2:
 				checkpointIndex = ByteUtils.toInt(ByteUtils.portionOf(data, 4, 8));
