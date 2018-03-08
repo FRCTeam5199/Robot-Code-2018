@@ -68,10 +68,12 @@ public class Display extends JFrame {
 
 	private void configGraph() {
 
-		int xMin = Integer.MAX_VALUE;
-		int xMax = Integer.MIN_VALUE;
-		int yMin = Integer.MAX_VALUE;
-		int yMax = Integer.MIN_VALUE;
+		Vector2 robotPos = robotInterface.getPosition();
+
+		int xMin = (int) robotPos.getX();
+		int xMax = xMin;
+		int yMin = (int) robotPos.getY();
+		int yMax = yMin;
 
 		for (int i = 0; i < path.getLength(); i++) {
 			Vector2 pos = path.getCheckpoint(i).getPos();
