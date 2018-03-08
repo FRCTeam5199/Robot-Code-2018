@@ -1,8 +1,6 @@
 
 package org.usfirst.frc.team5199.robot;
 
-import java.util.ArrayList;
-
 import arm.Arm;
 import arm.ArmControl;
 import autonomous.*;
@@ -13,7 +11,6 @@ import controllers.XBoxController;
 import drive.DriveBase;
 import drive.DriveControl;
 import edu.wpi.first.wpilibj.Compressor;
-import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.SampleRobot;
 import elevator.Elevator;
 import elevator.ElevatorControl;
@@ -25,6 +22,7 @@ import path.PathToolInterface;
 import path.RecordPath;
 import path.RecordedPaths;
 import util.ClockRegulator;
+import vision.Camera;
 import wheelieBar.WheelieBar;
 import wheelieBar.WheelieBarControl;
 
@@ -53,6 +51,8 @@ public class Robot extends SampleRobot {
 
 	private XBoxController xBox;
 	private JoystickController joy;
+
+	private Camera camera;
 
 	private DriveBase base;
 	private Elevator elevator;
@@ -85,6 +85,8 @@ public class Robot extends SampleRobot {
 		xBox = new XBoxController(0);
 		joy = new JoystickController(1);
 
+		camera = new Camera();
+
 		base = new DriveBase();
 		elevator = new Elevator();
 		gripper = new Gripper();
@@ -111,15 +113,15 @@ public class Robot extends SampleRobot {
 		AutonomousManager autManager = new AutonomousManager(cl);
 
 		Multi toSwitch = new Multi(2);
-		
+
 		toSwitch.add(0, new FollowPath(true, RecordedPaths.switchR(), driveControl, base, xBox));
 		toSwitch.add(1, new LowerArm(elevator, armControl));
 		toSwitch.add(1, new MoveElevator(30, elevator, elevatorControl));
-		
+
 		autManager.add(toSwitch);
-		
+
 		autManager.add(new BoxOut(gripper, arm, elevator));
-		
+
 		while (isEnabled() && isAutonomous() && !autManager.isDone()) {
 			autManager.update();
 		}
@@ -150,6 +152,9 @@ public class Robot extends SampleRobot {
 		ClockRegulator cl = new ClockRegulator(50);
 		MainLoop mainLoop = new MainLoop(cl);
 		mainLoop.add(driveControl);
+		mainLoop.add(elevatorControl);
+		mainLoop.add(gripperControl);
+		mainLoop.add(armControl);
 		mainLoop.add(recordPath);
 		mainLoop.init();
 		while (isEnabled() && isTest()) {
