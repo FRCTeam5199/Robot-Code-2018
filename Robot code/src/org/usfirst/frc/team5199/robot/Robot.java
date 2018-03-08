@@ -111,17 +111,23 @@ public class Robot extends SampleRobot {
 	public void autonomous() {
 		ClockRegulator cl = new ClockRegulator(50);
 		AutonomousManager autManager = new AutonomousManager(cl);
-
-		Multi toSwitch = new Multi(2);
-
-		toSwitch.add(0, new FollowPath(true, RecordedPaths.switchR(), driveControl, base, xBox));
-		toSwitch.add(1, new LowerArm(elevator, armControl));
-		toSwitch.add(1, new MoveElevator(30, elevator, elevatorControl));
-
+		Multi toSwitch  = new Multi(2);
+		//Multi twoCube = new Multi(2);
+		toSwitch.add(0, new FollowPath(true, RecordedPaths.scaleL(), driveControl, base, xBox));
+		//toSwitch.add(1, new BoxIn(gripper, arm, elevator, base));
+		toSwitch.add(1, new MoveElevator(60, elevator, elevatorControl));
+		// autManager.add(new LowerArm(elevator, armControl));
+		// autManager.add(new MoveElevator(30, elevator, elevatorControl));
+		//autManager.add(new FollowPath(true, RecordedPaths.main2(), driveControl, base, xBox));
 		autManager.add(toSwitch);
-
+		//autManager.add(new MoveElevator(60, elevator, elevatorControl));
 		autManager.add(new BoxOut(gripper, arm, elevator));
-
+		//autManager.add(new Move(-55, base, driveControl));
+		//autManager.add(new MoveElevator(30, elevator, elevatorControl));
+		//autManager.add(new Turn(180, base, driveControl));
+		//twoCube.add(0,new MoveElevator(10, elevator, elevatorControl));
+		//twoCube.add(1, new BoxIn(gripper, arm, elevator, base));
+		//autManager.add(twoCube);
 		while (isEnabled() && isAutonomous() && !autManager.isDone()) {
 			autManager.update();
 		}
