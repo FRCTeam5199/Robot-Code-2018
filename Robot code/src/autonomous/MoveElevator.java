@@ -7,7 +7,7 @@ import elevator.ElevatorControl;
 import interfaces.AutFunction;
 
 public class MoveElevator implements AutFunction {
-	private final int tolerance = 1;
+	private final int tolerance = 2;
 
 	private final ElevatorControl elevatorControl;
 	private final Elevator elevator;

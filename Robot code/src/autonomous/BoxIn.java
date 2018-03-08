@@ -7,7 +7,7 @@ import gripper.Gripper;
 import interfaces.AutFunction;
 
 public class BoxIn implements AutFunction {
-	private final int duration = 1500;
+	private final int duration = 12000;
 
 	private final Gripper gripper;
 	private final Arm arm;

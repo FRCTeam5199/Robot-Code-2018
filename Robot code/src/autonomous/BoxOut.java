@@ -7,7 +7,7 @@ import gripper.Gripper;
 import interfaces.AutFunction;
 
 public class BoxOut implements AutFunction {
-	private final int closedDuration = 500;
+	private final int closedDuration = 250;
 	private final int duration = 750;
 
 	private final Gripper gripper;
