@@ -23,6 +23,7 @@ public class DriveControl implements LoopModule {
 	private final double speed = 1;
 	private final double rSpeed = 200;
 	private final double radToDegrees = 180 / Math.PI;
+	private final double deadzone = .05;
 
 	// Comp robot
 	// private final double[] turnPIDDisplace = { 0.06, 0, 0.2 };
@@ -31,7 +32,7 @@ public class DriveControl implements LoopModule {
 	// private final double[] movePIDRate = { 0.005, 0, 0.025 };
 
 	// Test robot
-	private final double[] turnPIDDisplace = { 0.03, 0, 0.078 };
+	private final double[] turnPIDDisplace = { 0.03, 0, 0.1 };
 	private final double[] turnPIDRate = { 0.001, 0, 0.006 };
 	private final double[] movePIDDisplace = { 0.1, 0, 0.39 };
 	private final double[] movePIDRate = { 0.002, .1, 0.01 };
@@ -60,14 +61,14 @@ public class DriveControl implements LoopModule {
 	public void init() {
 		turnPID.enable();
 		movePID.disable();
-		//initAdjustMovePID();
+		// initAdjustMovePID();
 	}
 
 	@Override
 	public void update(long delta) {
 		base.setGearbox(controller.getButton(6));
-		//adjustMovePID();
-		
+		// adjustMovePID();
+
 		selectDriveMode();
 		if (controller.getButton(8)) {
 			//
@@ -155,14 +156,20 @@ public class DriveControl implements LoopModule {
 	}
 
 	public void arcadeControlAssisted() {
-		//enableMovePID();
+		// enableMovePID();
 		baseTurnPID.setPIDSourceType(PIDSourceType.kRate);
-		//baseMovePID.setPIDSourceType(PIDSourceType.kRate);
-		double targetTurnSpeed = controller.getStickRX() * rSpeed;
-		double movespeed = controller.getStickLY()*80;
+		// baseMovePID.setPIDSourceType(PIDSourceType.kRate);
+
+		double targetTurnSpeed;
+		if (Math.abs(controller.getStickRX()) > deadzone) {
+			targetTurnSpeed = controller.getStickRX() * rSpeed;
+		} else {
+			targetTurnSpeed = 0;
+		}
+		double movespeed = controller.getStickLY() * 80;
 		setTurnPID(targetTurnSpeed);
-		//setMovePID(movespeed);
-		//base.applyPID();
+		// setMovePID(movespeed);
+		// base.applyPID();
 		base.applyTurnPID(controller.getStickLY());
 	}
 
