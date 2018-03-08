@@ -49,8 +49,6 @@ public class ElevatorControl implements LoopModule {
 
 	@Override
 	public void update(long delta) {
-		Robot.nBroadcaster.println(elevator.getPosition());
-
 		if (commitToMove) {
 			commitToMove = System.currentTimeMillis() < moveEndTime;
 		} else {
