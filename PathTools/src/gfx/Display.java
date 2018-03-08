@@ -1,14 +1,17 @@
 package gfx;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
+import java.util.Timer;
 
 import javax.swing.JFrame;
 
 import maths.Vector2;
+import maths.Vector2I;
 import networking.RobotNetworkInterface;
 import path.Path;
 import path.PathNode;
@@ -36,6 +39,7 @@ public class Display extends JFrame {
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(1280, 720);
+		setMinimumSize(new Dimension(320, 240));
 		getContentPane().setBackground(Color.DARK_GRAY);
 		setVisible(true);
 	}
@@ -58,10 +62,12 @@ public class Display extends JFrame {
 		drawScale(g);
 		drawRobot(g);
 		mouseOverInfo(g);
+
 		return output;
 	}
 
 	private void configGraph() {
+
 		int xMin = Integer.MAX_VALUE;
 		int xMax = Integer.MIN_VALUE;
 		int yMin = Integer.MAX_VALUE;
@@ -101,20 +107,20 @@ public class Display extends JFrame {
 
 		g.setColor(Color.GRAY);
 
-		for (int y = toScreenY(0); y < getHeight(); y += (toScreenY(0) - toScreenY(12))) {
-			g.drawLine(0, y, getWidth(), y);
+		for (double y = toScreenY(0); y < getHeight(); y += (toScreenYD(0) - toScreenYD(12))) {
+			g.drawLine(0, (int) y, getWidth(), (int) y);
 		}
 
-		for (int y = toScreenY(0); y > 0; y -= (toScreenY(0) - toScreenY(12))) {
-			g.drawLine(0, y, getWidth(), y);
+		for (double y = toScreenY(0); y > 0; y -= (toScreenYD(0) - toScreenYD(12))) {
+			g.drawLine(0, (int) y, getWidth(), (int) y);
 		}
 
-		for (int x = toScreenX(0); x < getWidth(); x += (toScreenX(12) - toScreenX(0))) {
-			g.drawLine(x, 0, x, getHeight());
+		for (double x = toScreenX(0); x < getWidth(); x += (toScreenXD(12) - toScreenXD(0))) {
+			g.drawLine((int) x, 0, (int) x, getHeight());
 		}
 
-		for (int x = toScreenX(0); x > 0; x -= (toScreenX(12) - toScreenX(0))) {
-			g.drawLine(x, 0, x, getHeight());
+		for (double x = toScreenX(0); x > 0; x -= (toScreenXD(12) - toScreenXD(0))) {
+			g.drawLine((int) x, 0, (int) x, getHeight());
 		}
 
 	}
@@ -154,29 +160,67 @@ public class Display extends JFrame {
 	private void drawScale(Graphics g) {
 		for (int i = 0; i < 350; i++) {
 			g.setColor(colorCycle(2 * i));
-			g.drawLine(10, i + 40, 30, i + 40);
+			g.drawLine(10, 350 - i + 40, 30, 350 - i + 40);
 		}
 
 		g.setColor(Color.WHITE);
-		g.drawString("0 in/s", 40, 45);
-		g.drawString(maxSpeed + " in/s", 40, 395);
+		g.drawString("0 in/s", 40, 395);
+		g.drawString(maxSpeed + " in/s", 40, 45);
 	}
 
 	private void drawRobot(Graphics g) {
 		Vector2 robotPos = robotInterface.getPosition();
+		Vector2 dim = robotInterface.getDim();
+		Vector2 pivot = robotInterface.getPivotPos();
+		double rot = robotInterface.getRot();
 
-		g.setColor(Color.RED);
+		g.setColor(Color.WHITE);
 		plot(robotPos.getX(), robotPos.getY(), g);
-		g.drawLine((int) robotPos.getX(), (int) robotPos.getY(),
-				(int) (robotPos.getX() + 20 * Math.sin(robotInterface.getRot())),
-				(int) (robotPos.getY() + 20 * Math.cos(robotInterface.getRot())));
+
+		double front = dim.getY() - pivot.getY();
+		double back = -pivot.getY();
+		double left = -pivot.getX();
+		double right = dim.getX() - pivot.getX();
+
+		Vector2 fl = Vector2.rotateCW(new Vector2(left, front), rot);
+		Vector2 bl = Vector2.rotateCW(new Vector2(left, back), rot);
+		Vector2 fr = Vector2.rotateCW(new Vector2(right, front), rot);
+		Vector2 br = Vector2.rotateCW(new Vector2(right, back), rot);
+
+		fl = Vector2.add(fl, robotPos);
+		bl = Vector2.add(bl, robotPos);
+		fr = Vector2.add(fr, robotPos);
+		br = Vector2.add(br, robotPos);
+
+		int[] baseX = new int[5];
+		int[] baseY = new int[5];
+
+		baseX[0] = toScreenX(bl.getX());
+		baseX[1] = toScreenX(fl.getX());
+		baseX[2] = toScreenX(fr.getX());
+		baseX[3] = toScreenX(br.getX());
+		baseX[4] = toScreenX(bl.getX());
+
+		baseY[0] = toScreenY(bl.getY());
+		baseY[1] = toScreenY(fl.getY());
+		baseY[2] = toScreenY(fr.getY());
+		baseY[3] = toScreenY(br.getY());
+		baseY[4] = toScreenY(bl.getY());
+
+		robotPos = toScreen(robotPos);
+
+		g.setColor(Color.WHITE);
+		g.drawPolyline(baseX, baseY, 5);
+
+		// g.drawLine((int) robotPos.getX(), (int) robotPos.getY(),
+		// (int) (robotPos.getX() + 20 * Math.sin(robotInterface.getRot())),
+		// (int) (robotPos.getY() - 20 * Math.cos(robotInterface.getRot())));
 	}
 
 	private void mouseOverInfo(Graphics g) {
 		if (getMousePosition() == null) {
 			return;
 		}
-
 		Vector2 mousePos = new Vector2(getMousePosition());
 
 		for (int i = 0; i < path.getLength(); i++) {
@@ -199,16 +243,28 @@ public class Display extends JFrame {
 		}
 	}
 
+	private void plot(Vector2 pos, Graphics g) {
+		plot(pos.getX(), pos.getY(), g);
+	}
+
 	private void plot(double x, double y, Graphics g) {
 		g.fillOval(toScreenX(x) - 5, toScreenY(y) - 5, 10, 10);
 	}
 
+	private double toScreenXD(double x) {
+		return (x * scale + origin.getX()) + borderSize;
+	}
+
+	private double toScreenYD(double y) {
+		return ((dHeight - y) * scale - origin.getY()) + borderSize;
+	}
+
 	private int toScreenX(double x) {
-		return (int) (x * scale + origin.getX()) + borderSize;
+		return (int) toScreenXD(x);
 	}
 
 	private int toScreenY(double y) {
-		return (int) ((dHeight - y) * scale - origin.getY()) + borderSize;
+		return (int) toScreenYD(y);
 	}
 
 	private Vector2 toScreen(Vector2 p) {
