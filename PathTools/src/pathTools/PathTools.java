@@ -10,7 +10,7 @@ public class PathTools {
 	public static void main(String[] args) {
 		ClockRegulator clockRegulator = new ClockRegulator(60);
 		RobotNetworkInterface robotInterface = new RobotNetworkInterface(1181);
-		Path path = RecordedPaths.scaleL();
+		Path path = RecordedPaths.main1();
 
 		robotInterface.start();
 
