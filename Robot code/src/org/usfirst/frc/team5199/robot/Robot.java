@@ -6,11 +6,13 @@ import arm.ArmControl;
 import autonomous.*;
 import climber.Climber;
 import climber.ClimberControl;
+import controllers.AutController;
 import controllers.JoystickController;
 import controllers.XBoxController;
 import drive.DriveBase;
 import drive.DriveControl;
 import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SampleRobot;
 import elevator.Elevator;
 import elevator.ElevatorControl;
@@ -51,6 +53,7 @@ public class Robot extends SampleRobot {
 
 	private XBoxController xBox;
 	private JoystickController joy;
+	private AutController autController;
 
 	private Camera camera;
 
@@ -76,7 +79,7 @@ public class Robot extends SampleRobot {
 
 	@Override
 	public void robotInit() {
-		nBroadcaster = new RemoteOutput("10.51.99.78", 1180);
+		nBroadcaster = new RemoteOutput("10.51.99.213", 1180);
 		Robot.nBroadcaster.println("Starting up...");
 
 		// dashboard = new SmartDashboard();
@@ -84,6 +87,7 @@ public class Robot extends SampleRobot {
 
 		xBox = new XBoxController(0);
 		joy = new JoystickController(1);
+		autController = new AutController(2);
 
 		camera = new Camera();
 
@@ -103,7 +107,7 @@ public class Robot extends SampleRobot {
 
 		recordPath = new RecordPath(xBox, base.getLocation());
 
-		toolInterface = new PathToolInterface("10.51.99.78", 1181, base.getLocation());
+		toolInterface = new PathToolInterface("10.51.99.213", 1181, base.getLocation());
 		Robot.nBroadcaster.println("Ready");
 	}
 
@@ -112,30 +116,61 @@ public class Robot extends SampleRobot {
 		base.getLocation().reset();
 		base.getGyro().reset();
 
+		base.move(0, 0);
+		gripper.close();
+		arm.moveUp();
+
+		String plates = DriverStation.getInstance().getGameSpecificMessage();
+
 		ClockRegulator cl = new ClockRegulator(50);
 		AutonomousManager autManager = new AutonomousManager(cl);
 
-		autManager.add(new FollowPath(true, RecordedPaths.main2(), driveControl, base, xBox));
+		// switch (autController.getAutMode()) {
+		switch (1) {
+		case 6:
+			Multi toSwitch = new Multi(2);
+			if (plates.charAt(0) == 'L') {
+				toSwitch.add(0, new FollowPath(true, RecordedPaths.switchL(), driveControl, base, xBox));
+				toSwitch.add(1, new Sleep(3000));
 
-		// Multi toSwitch = new Multi(2);
-		// //Multi twoCube = new Multi(2);
-		// toSwitch.add(0, new FollowPath(true, RecordedPaths.scaleL(),
-		// driveControl, base, xBox));
-		// //toSwitch.add(1, new BoxIn(gripper, arm, elevator, base));
-		// toSwitch.add(1, new MoveElevator(60, elevator, elevatorControl));
-		// // autManager.add(new LowerArm(elevator, armControl));
-		// // autManager.add(new MoveElevator(30, elevator, elevatorControl));
-		// //autManager.add(new FollowPath(true, RecordedPaths.main2(),
-		// driveControl, base, xBox));
-		// autManager.add(toSwitch);
-		// //autManager.add(new MoveElevator(60, elevator, elevatorControl));
-		// autManager.add(new BoxOut(gripper, arm, elevator));
-		// //autManager.add(new Move(-55, base, driveControl));
-		// //autManager.add(new MoveElevator(30, elevator, elevatorControl));
-		// //autManager.add(new Turn(180, base, driveControl));
-		// //twoCube.add(0,new MoveElevator(10, elevator, elevatorControl));
-		// //twoCube.add(1, new BoxIn(gripper, arm, elevator, base));
-		// //autManager.add(twoCube);
+			} else if (plates.charAt(0) == 'R') {
+				toSwitch.add(0, new FollowPath(true, RecordedPaths.switchR(), driveControl, base, xBox));
+				toSwitch.add(1, new Sleep(1000));
+
+			}
+
+			toSwitch.add(1, new LowerArm(elevator, armControl));
+			toSwitch.add(1, new MoveElevator(40, elevator, elevatorControl));
+
+			autManager.add(toSwitch);
+
+			autManager.add(new BoxOut(gripper, arm, elevator));
+			break;
+		case 1:
+			Multi toScale = new Multi(2);
+			if (plates.charAt(1) == 'L') {
+				toScale.add(0, new FollowPath(true, RecordedPaths.scaleL(), driveControl, base, xBox));
+				toScale.add(1, new Sleep(3000));
+			} else if (plates.charAt(1) == 'R') {
+				toScale.add(0, new FollowPath(true, RecordedPaths.scaleR(), driveControl, base, xBox));
+				toScale.add(1, new Sleep(1000));
+			}
+
+			toScale.add(1, new LowerArm(elevator, armControl));
+			toScale.add(1, new MoveElevator(80, elevator, elevatorControl));
+
+			autManager.add(toScale);
+
+			autManager.add(new BoxOut(gripper, arm, elevator));
+			if (plates.charAt(1) == 'L') {
+				//autManager.add(new FollowPath(true, RecordedPaths.scaleRSwitch(), driveControl, base, xBox));
+			}else if (plates.charAt(1)=='R'){
+				autManager.add(new FollowPath(true, RecordedPaths.scaleRSwitch(), driveControl, base, xBox));
+			}
+			
+
+			break;
+		}
 		while (isEnabled() && isAutonomous() && !autManager.isDone()) {
 			autManager.update();
 		}
@@ -173,6 +208,7 @@ public class Robot extends SampleRobot {
 		mainLoop.init();
 		while (isEnabled() && isTest()) {
 			mainLoop.update();
+			Robot.nBroadcaster.println(elevator.getPosition());
 			cl.sync();
 		}
 	}
