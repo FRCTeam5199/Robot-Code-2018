@@ -13,8 +13,8 @@ public class ElevatorControl implements LoopModule {
 	private final JoystickController joystick;
 	private final Elevator elevator;
 	private final int moveDuration = 850;
-	// private final int maxHeight = 85;
-	private final int maxHeight = Integer.MAX_VALUE;
+	private final int maxHeight = 85;
+	// private final int maxHeight = Integer.MAX_VALUE;
 
 	private double deadzone = .2;
 	private double targetPos = 0;
