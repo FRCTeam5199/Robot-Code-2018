@@ -19,7 +19,7 @@ public class Elevator {
 	public static final int downHeight = 42;
 	public static final int downRadius = 13;
 
-	private final double inchesPerPulse = (Math.PI * 1.432d * 2) / (1024d * 10d);
+	private final double inchesPerPulse = (Math.PI * 1.432d * 2) / (1024d * 9d);
 	private final VictorSPXPID motor;
 	private final Encoder encoder;
 	private PIDController elevatorPID;
