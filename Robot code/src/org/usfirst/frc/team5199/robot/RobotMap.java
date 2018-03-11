@@ -27,7 +27,7 @@ public class RobotMap {
 	public static final int gripperMotorR = 2;
 	public static final int gripperPiston = 2;
 
-	public static final int armPiston = 0;
+	public static final int armPiston = 7;
 
 	public static final int climberPiston = 1;
 	public static final int climberMotor = 3;
