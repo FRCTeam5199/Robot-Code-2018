@@ -1,12 +1,13 @@
 package climber;
 
-import controllers.ControlPanel;
 import controllers.JoystickController;
 import interfaces.LoopModule;
 
 public class ClimberControl implements LoopModule {
 	private final Climber climber;
 	private final JoystickController stick;
+
+	private boolean climberRelease;
 
 	public ClimberControl(Climber climber, JoystickController stick) {
 		this.climber = climber;
@@ -16,8 +17,8 @@ public class ClimberControl implements LoopModule {
 	@Override
 	public void init() {
 		// TODO Auto-generated method stub
+		climberRelease = false;
 		climber.lock();
-
 	}
 
 	@Override
@@ -32,10 +33,9 @@ public class ClimberControl implements LoopModule {
 			climber.setMotor(0);
 		}
 
-		if (stick.getButton(11)) {
-			climber.release();
-		} else {
-			climber.lock();
+		if (stick.getButtonDown(11)) {
+			climberRelease = !climberRelease;
+			climber.setPiston(climberRelease);
 		}
 
 	}
