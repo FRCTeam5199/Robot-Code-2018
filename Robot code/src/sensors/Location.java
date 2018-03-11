@@ -129,6 +129,9 @@ public class Location implements Runnable {
 			if (Robot.toolInterface != null) {
 				Robot.toolInterface.sendPos();
 			}
+			
+			SmartDashboard.putNumber("Encoder L", wheelsLeft.getDistance());
+			SmartDashboard.putNumber("Encoder R", wheelsRight.getDistance());
 		}
 	}
 
