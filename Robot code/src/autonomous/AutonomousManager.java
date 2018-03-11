@@ -25,6 +25,9 @@ public class AutonomousManager {
 	}
 
 	public void update() {
+		if (functions.isEmpty()) {
+			return;
+		}
 		if (firstRun) {
 			functions.get(0).init();
 		}

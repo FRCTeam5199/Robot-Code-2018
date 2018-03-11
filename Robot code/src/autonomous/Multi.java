@@ -51,8 +51,13 @@ public class Multi implements AutFunction {
 
 	@Override
 	public void init() {
-		for (ArrayList<AutFunction> functions : threads) {
-			functions.get(0).init();
+		for (int i = 0; i < threads.length; i++) {
+			ArrayList<AutFunction> functions = threads[i];
+			if (functions.isEmpty()) {
+				isDone[i] = true;
+			} else {
+				functions.get(0).init();
+			}
 		}
 	}
 
