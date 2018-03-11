@@ -1,6 +1,7 @@
 package path;
 
-public class RecordedPaths {
+
+public class RecordedPathsOld916am {
 
 	public static Path hallway1() {
 		return new Path(

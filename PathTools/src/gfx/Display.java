@@ -6,8 +6,11 @@ import java.awt.Graphics;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.Timer;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 
 import maths.Vector2;
@@ -19,6 +22,12 @@ import path.PathNode;
 public class Display extends JFrame {
 
 	private final double inPerMeter = 39.3701;
+
+	private BufferedImage fieldImage;
+	private final double fieldImageScale = 299.65 / 568;
+	private final Vector2I fieldImageCenter = new Vector2I(240, 1477);
+	private final Vector2 startingPosition = new Vector2(29.67, 4);
+	// private final Vector2I fieldImageCenter = new Vector2I(35, 35);
 
 	private final int borderSize = 50;
 
@@ -36,6 +45,14 @@ public class Display extends JFrame {
 		super("Path Tools");
 		this.robotInterface = robotInterface;
 		this.path = path;
+
+		try {
+			fieldImage = ImageIO.read(getClass().getClassLoader().getResource("Field.png"));
+		} catch (IOException e) {
+			fieldImage = null;
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(1280, 720);
@@ -57,6 +74,7 @@ public class Display extends JFrame {
 		g.fillRect(0, 0, getWidth(), getHeight());
 
 		configGraph();
+		drawField(g);
 		drawGrid(g);
 		drawPath(g);
 		drawScale(g);
@@ -103,6 +121,27 @@ public class Display extends JFrame {
 
 		origin = new Vector2(-xMin * scale, -yMin * scale);
 
+	}
+
+	private void drawField(Graphics g) {
+		// g.drawImage(fieldImage, toScreenX(fie) * (1 - fieldImageScale)),
+		// toScreenY(fieldImage.getHeight() * (1 - fieldImageScale)),
+		// toScreenX(fieldImage.getWidth() * fieldImageScale) - toScreenX(0),
+		// toScreenY(0) - toScreenY(fieldImage.getHeight() * fieldImageScale),
+		// this);
+
+		// g.drawImage(fieldImage, toScreenX(-fieldImageCenter.getX() *
+		// fieldImageScale),
+		// toScreenY((fieldImage.getHeight() - fieldImageCenter.getY()) *
+		// fieldImageScale),
+		// toScreenX(fieldImage.getWidth()) - toScreenX(0),
+		// toScreenY(fieldImage.getHeight()) - toScreenY(0),
+		// this);
+
+		g.drawImage(fieldImage, toScreenX(-fieldImageCenter.getX() * fieldImageScale),
+				toScreenY(fieldImageCenter.getY() * fieldImageScale),
+				toScreenX(fieldImage.getWidth() * fieldImageScale) - toScreenX(0),
+				toScreenY(0) - toScreenY(fieldImage.getHeight() * fieldImageScale), this);
 	}
 
 	private void drawGrid(Graphics g) {
@@ -217,6 +256,8 @@ public class Display extends JFrame {
 		// g.drawLine((int) robotPos.getX(), (int) robotPos.getY(),
 		// (int) (robotPos.getX() + 20 * Math.sin(robotInterface.getRot())),
 		// (int) (robotPos.getY() - 20 * Math.cos(robotInterface.getRot())));
+
+		g.drawString("Speed: " + robotInterface.getVelocity(), 30, getHeight() - 30);
 	}
 
 	private void mouseOverInfo(Graphics g) {
