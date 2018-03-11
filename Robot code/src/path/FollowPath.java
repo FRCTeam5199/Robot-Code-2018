@@ -15,6 +15,10 @@ import sensors.Location;
 public class FollowPath implements AutFunction, LoopModule {
 
 	private final double crossTrackP = 6;
+	private final double maxAbortSpeed = 1;
+	private final long abortTimeout = 2000;
+	private final int maxAbortDistance = 12;
+
 	private final double radToDeg = 180 / Math.PI;
 
 	private final XBoxController controller;
@@ -29,6 +33,8 @@ public class FollowPath implements AutFunction, LoopModule {
 
 	private PathNode currentCheckpoint;
 	private PathNode lastCheckpoint;
+	private Vector2 lastMovedPos;
+	private long lastMovedTimeout;
 	private int checkpointIndex;
 
 	private boolean isDone;
@@ -47,6 +53,25 @@ public class FollowPath implements AutFunction, LoopModule {
 
 	@Override
 	public void update(long deltaTime) {
+		if (base.getAvgRate() < maxAbortSpeed) {
+			// robot isn't moving...
+			Robot.nBroadcaster
+					.println("Robot stuck. Abort in " + (lastMovedTimeout - System.currentTimeMillis()) + " ms");
+			if (System.currentTimeMillis() > lastMovedTimeout
+					&& Vector2.distance(lastMovedPos, loc.getLocation()) < maxAbortDistance) {
+				// robot hasn't moved for abortTimeout ms and robot is close to
+				// target
+				Robot.nBroadcaster.println("Close enough meh");
+				isDone = true;
+			} else {
+				// welp
+			}
+		} else {
+			// robot is moving, set last moved time and pos
+			lastMovedTimeout = System.currentTimeMillis() + abortTimeout;
+			lastMovedPos = loc.getLocation();
+		}
+
 		if (!isDone) {
 			double error = getCrossTrackError();
 
@@ -188,6 +213,10 @@ public class FollowPath implements AutFunction, LoopModule {
 		currentCheckpoint = path.getCheckpoint();
 		lastCheckpoint = currentCheckpoint;
 		checkpointIndex = 0;
+
+		lastMovedTimeout = System.currentTimeMillis() + abortTimeout;
+		lastMovedPos = loc.getLocation();
+
 		path.reset();
 	}
 
