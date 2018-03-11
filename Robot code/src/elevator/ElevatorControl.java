@@ -13,7 +13,7 @@ public class ElevatorControl implements LoopModule {
 	private final JoystickController joystick;
 	private final Elevator elevator;
 	private final int moveDuration = 850;
-	private final int maxHeight = 85;
+	private final int maxHeight = 89;
 	// private final int maxHeight = Integer.MAX_VALUE;
 
 	private double deadzone = .2;
@@ -22,6 +22,8 @@ public class ElevatorControl implements LoopModule {
 	private boolean commitToMove;
 	private boolean macroRelease;
 	private boolean deadzoneLast;
+
+	private boolean override;
 
 	private Interpolater smoother;
 
@@ -39,52 +41,61 @@ public class ElevatorControl implements LoopModule {
 		// SmartDashboard.putNumber("Elevator I", 0);
 		// SmartDashboard.putNumber("Elevator D", 0);
 		// SmartDashboard.putNumber("Interpolater accel", 0);
-
+		override = false;
 		deadzoneLast = false;
 		commitToMove = false;
 		macroRelease = true;
 		moveEndTime = 0;
 		elevator.disablePID();
+
 	}
 
 	@Override
 	public void update(long delta) {
-		if (commitToMove) {
-			commitToMove = System.currentTimeMillis() < moveEndTime;
+		if (joystick.getButton(7)) {
+			override = true;
+		}
+
+		if (override) {
+			elevator.disablePID();
+			elevator.setMotor(joystick.getSlider() * joystick.getYAxis());
 		} else {
-			if (!joystick.getButton(2)) {
-				macroRelease = true;
-			}
-
-			if (joystick.getButton(2) && elevator.getEncoder().getDistance() < Elevator.deadzone && macroRelease) {
-				macroRelease = false;
-				elevator.setTarget(Elevator.deadzone + 1);
-				elevator.enablePID();
-
-				commitToMove = true;
-				moveEndTime = System.currentTimeMillis() + moveDuration;
-
+			if (commitToMove) {
+				commitToMove = System.currentTimeMillis() < moveEndTime;
 			} else {
-				if (Math.abs(joystick.getYAxis()) < deadzone) {
-					if (!deadzoneLast) {
-						targetPos = elevator.getPosition();
-					}
-					elevator.setTarget(targetPos);
+				if (!joystick.getButton(2)) {
+					macroRelease = true;
+				}
+
+				if (joystick.getButton(2) && elevator.getEncoder().getDistance() < Elevator.deadzone && macroRelease) {
+					macroRelease = false;
+					elevator.setTarget(Elevator.deadzone + 1);
 					elevator.enablePID();
-					deadzoneLast = true;
+
+					commitToMove = true;
+					moveEndTime = System.currentTimeMillis() + moveDuration;
+
 				} else {
-					if (joystick.getYAxis() > 0 && elevator.getPosition() >= maxHeight - 1) {
-						// nothing
-						elevator.setTarget(maxHeight);
+					if (Math.abs(joystick.getYAxis()) < deadzone) {
+						if (!deadzoneLast) {
+							targetPos = elevator.getPosition();
+						}
+						elevator.setTarget(targetPos);
 						elevator.enablePID();
+						deadzoneLast = true;
 					} else {
-						elevator.disablePID();
-						elevator.setMotor(joystick.getYAxis() * joystick.getSlider());
-						deadzoneLast = false;
+						if (joystick.getYAxis() > 0 && elevator.getPosition() >= maxHeight - 1) {
+							// nothing
+							elevator.setTarget(maxHeight);
+							elevator.enablePID();
+						} else {
+							elevator.disablePID();
+							elevator.setMotor(joystick.getYAxis() * joystick.getSlider());
+							deadzoneLast = false;
+						}
 					}
 				}
 			}
-
 		}
 	}
 
@@ -92,4 +103,17 @@ public class ElevatorControl implements LoopModule {
 		smoother.setTarget(n);
 		elevator.setTarget(smoother.getValue(delta));
 	}
+
+	public void enablePID() {
+		setPIDEnabled(true);
+	}
+
+	public void disablePID() {
+		setPIDEnabled(false);
+	}
+
+	public void setPIDEnabled(boolean b) {
+		elevator.setPIDEnabled(b);
+	}
+
 }
