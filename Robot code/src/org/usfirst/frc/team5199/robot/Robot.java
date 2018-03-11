@@ -14,6 +14,7 @@ import drive.DriveControl;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SampleRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import elevator.Elevator;
 import elevator.ElevatorControl;
 import gripper.Gripper;
@@ -79,7 +80,8 @@ public class Robot extends SampleRobot {
 
 	@Override
 	public void robotInit() {
-		nBroadcaster = new RemoteOutput("10.51.99.213", 1180);
+
+		nBroadcaster = new RemoteOutput("10.51.99.213", 5800);
 		Robot.nBroadcaster.println("Starting up...");
 
 		// dashboard = new SmartDashboard();
@@ -107,12 +109,17 @@ public class Robot extends SampleRobot {
 
 		recordPath = new RecordPath(xBox, base.getLocation());
 
-		toolInterface = new PathToolInterface("10.51.99.213", 1181, base.getLocation());
+		toolInterface = new PathToolInterface("10.51.99.213", 5801, base.getLocation());
 		Robot.nBroadcaster.println("Ready");
 	}
 
 	@Override
 	public void autonomous() {
+		long switchStraight = 0;
+		long switchCross = 3000;
+		long scaleStraight = 0;
+		long scaleCross = 2000;
+
 		base.getLocation().reset();
 		base.getGyro().reset();
 
@@ -122,20 +129,42 @@ public class Robot extends SampleRobot {
 
 		String plates = DriverStation.getInstance().getGameSpecificMessage();
 
+		SmartDashboard.putString("Plates", plates);
+
+		Robot.nBroadcaster.println(plates);
+
 		ClockRegulator cl = new ClockRegulator(50);
 		AutonomousManager autManager = new AutonomousManager(cl);
 
-		// switch (autController.getAutMode()) {
-		switch (1) {
-		case 6:
+		int autSelect = autController.getAutMode();
+		Robot.nBroadcaster.println("Aut controller:" + autSelect);
+
+		autManager.add(new ReleaseWheelieBar(base));
+
+		if (autSelect == 6 || autSelect == 2) {
 			Multi toSwitch = new Multi(2);
 			if (plates.charAt(0) == 'L') {
-				toSwitch.add(0, new FollowPath(true, RecordedPaths.switchL(), driveControl, base, xBox));
-				toSwitch.add(1, new Sleep(3000));
+				if (autSelect == 6) {
+					// start right
+					toSwitch.add(0, new FollowPath(true, RecordedPaths.switchRtoL(), driveControl, base, xBox));
+					toSwitch.add(1, new Sleep(switchCross));
+				} else if (autSelect == 2) {
+					// start left
+					Robot.nBroadcaster.println("LtoL");
+					toSwitch.add(0, new FollowPath(true, RecordedPaths.switchLtoL(), driveControl, base, xBox));
+					toSwitch.add(1, new Sleep(switchStraight));
+				}
 
 			} else if (plates.charAt(0) == 'R') {
-				toSwitch.add(0, new FollowPath(true, RecordedPaths.switchR(), driveControl, base, xBox));
-				toSwitch.add(1, new Sleep(1000));
+				if (autSelect == 6) {
+					// start right
+					toSwitch.add(0, new FollowPath(true, RecordedPaths.switchRtoR(), driveControl, base, xBox));
+					toSwitch.add(1, new Sleep(switchStraight));
+				} else if (autSelect == 2) {
+					// start left
+					toSwitch.add(0, new FollowPath(true, RecordedPaths.switchLtoR(), driveControl, base, xBox));
+					toSwitch.add(1, new Sleep(switchCross));
+				}
 
 			}
 
@@ -145,15 +174,27 @@ public class Robot extends SampleRobot {
 			autManager.add(toSwitch);
 
 			autManager.add(new BoxOut(gripper, arm, elevator));
-			break;
-		case 1:
+		} else if (autSelect == 1 || autSelect == 3) {
 			Multi toScale = new Multi(2);
 			if (plates.charAt(1) == 'L') {
-				toScale.add(0, new FollowPath(true, RecordedPaths.scaleL(), driveControl, base, xBox));
-				toScale.add(1, new Sleep(3000));
+				if (autSelect == 1) {
+					// start right
+					toScale.add(0, new FollowPath(true, RecordedPaths.scaleRtoL(), driveControl, base, xBox));
+					toScale.add(1, new Sleep(scaleCross));
+				} else if (autSelect == 3) {
+					// start left
+					toScale.add(0, new FollowPath(true, RecordedPaths.scaleLtoL(), driveControl, base, xBox));
+					toScale.add(1, new Sleep(scaleStraight));
+				}
 			} else if (plates.charAt(1) == 'R') {
-				toScale.add(0, new FollowPath(true, RecordedPaths.scaleR(), driveControl, base, xBox));
-				toScale.add(1, new Sleep(1000));
+				if (autSelect == 1) {
+					// start right
+					toScale.add(0, new FollowPath(true, RecordedPaths.scaleRtoR(), driveControl, base, xBox));
+					toScale.add(1, new Sleep(scaleStraight));
+				} else if (autSelect == 3) {
+					toScale.add(0, new FollowPath(true, RecordedPaths.scaleLtoR(), driveControl, base, xBox));
+					toScale.add(1, new Sleep(scaleCross));
+				}
 			}
 
 			toScale.add(1, new LowerArm(elevator, armControl));
@@ -161,16 +202,12 @@ public class Robot extends SampleRobot {
 
 			autManager.add(toScale);
 
-			autManager.add(new BoxOut(gripper, arm, elevator));
-			if (plates.charAt(1) == 'L') {
-				//autManager.add(new FollowPath(true, RecordedPaths.scaleRSwitch(), driveControl, base, xBox));
-			}else if (plates.charAt(1)=='R'){
-				autManager.add(new FollowPath(true, RecordedPaths.scaleRSwitch(), driveControl, base, xBox));
-			}
-			
+			autManager.add(new BoxDrop(gripper, arm, elevator));
 
-			break;
+		} else if (autSelect == 4) {
+			autManager.add(new Move(132, base, driveControl));
 		}
+
 		while (isEnabled() && isAutonomous() && !autManager.isDone()) {
 			autManager.update();
 		}
@@ -208,7 +245,8 @@ public class Robot extends SampleRobot {
 		mainLoop.init();
 		while (isEnabled() && isTest()) {
 			mainLoop.update();
-			Robot.nBroadcaster.println(elevator.getPosition());
+			Robot.nBroadcaster.println(elevator.getPosition() + "\t" + base.getEncoderL().getDistance() + "\t"
+					+ base.getEncoderR().getDistance());
 			cl.sync();
 		}
 	}
