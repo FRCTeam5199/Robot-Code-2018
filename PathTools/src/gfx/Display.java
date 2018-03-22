@@ -2,12 +2,15 @@ package gfx;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Event;
 import java.awt.Graphics;
 import java.awt.MouseInfo;
 import java.awt.Point;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.Timer;
 
 import javax.imageio.ImageIO;
@@ -26,10 +29,10 @@ public class Display extends JFrame {
 	private BufferedImage fieldImage;
 	private final double fieldImageScale = 299.65 / 568;
 	private final Vector2I fieldImageCenter = new Vector2I(240, 1477);
-	private final Vector2 startingPosition = new Vector2(29.67, 4);
+	// private final Vector2I fieldImageCenter = new Vector2I(328, 1469);
 	// private final Vector2I fieldImageCenter = new Vector2I(35, 35);
 
-	private final int borderSize = 50;
+	private final int borderSize = 100;
 
 	private final RobotNetworkInterface robotInterface;
 	private Path path;
@@ -79,7 +82,7 @@ public class Display extends JFrame {
 		drawPath(g);
 		drawScale(g);
 		drawRobot(g);
-		mouseOverInfo(g);
+		mouseInfo(g);
 
 		return output;
 	}
@@ -124,20 +127,6 @@ public class Display extends JFrame {
 	}
 
 	private void drawField(Graphics g) {
-		// g.drawImage(fieldImage, toScreenX(fie) * (1 - fieldImageScale)),
-		// toScreenY(fieldImage.getHeight() * (1 - fieldImageScale)),
-		// toScreenX(fieldImage.getWidth() * fieldImageScale) - toScreenX(0),
-		// toScreenY(0) - toScreenY(fieldImage.getHeight() * fieldImageScale),
-		// this);
-
-		// g.drawImage(fieldImage, toScreenX(-fieldImageCenter.getX() *
-		// fieldImageScale),
-		// toScreenY((fieldImage.getHeight() - fieldImageCenter.getY()) *
-		// fieldImageScale),
-		// toScreenX(fieldImage.getWidth()) - toScreenX(0),
-		// toScreenY(fieldImage.getHeight()) - toScreenY(0),
-		// this);
-
 		g.drawImage(fieldImage, toScreenX(-fieldImageCenter.getX() * fieldImageScale),
 				toScreenY(fieldImageCenter.getY() * fieldImageScale),
 				toScreenX(fieldImage.getWidth() * fieldImageScale) - toScreenX(0),
@@ -260,7 +249,7 @@ public class Display extends JFrame {
 		g.drawString("Speed: " + robotInterface.getVelocity(), 30, getHeight() - 30);
 	}
 
-	private void mouseOverInfo(Graphics g) {
+	private void mouseInfo(Graphics g) {
 		if (getMousePosition() == null) {
 			return;
 		}
@@ -281,9 +270,19 @@ public class Display extends JFrame {
 				g.drawString("Node " + i + " : " + node.getPos(), x + 20, y + 20);
 				g.drawString("Speed: " + node.getSpeed() + " in/s", x + 20, y + 35);
 				g.drawString("              " + node.getSpeed() / inPerMeter + " m/s", x + 20, y + 50);
-				return;
+				break;
 			}
 		}
+
+		// String fieldX = new
+		// DecimalFormat("#.##").format(toFieldXD(mousePos.getX()));
+		// new DecimalFormat("#.##").format(toFieldYD(mousePos.getY()));
+
+		double mouseFieldX = (int) (toFieldXD(mousePos.getX()) * 100) / 100d;
+		double mouseFieldY = (int) (toFieldYD(mousePos.getY()) * 100) / 100d;
+
+		g.drawString(mouseFieldX + ", " + mouseFieldY, getWidth() - 150, 50);
+
 	}
 
 	private void plot(Vector2 pos, Graphics g) {
@@ -292,6 +291,14 @@ public class Display extends JFrame {
 
 	private void plot(double x, double y, Graphics g) {
 		g.fillOval(toScreenX(x) - 5, toScreenY(y) - 5, 10, 10);
+	}
+
+	private double toFieldXD(double x) {
+		return (x - borderSize - origin.getX()) / scale;
+	}
+
+	private double toFieldYD(double y) {
+		return -(((y - borderSize + origin.getY()) / scale) - dHeight);
 	}
 
 	private double toScreenXD(double x) {
