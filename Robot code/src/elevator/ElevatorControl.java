@@ -30,7 +30,7 @@ public class ElevatorControl implements LoopModule {
 	public ElevatorControl(Elevator elevator, JoystickController joystick) {
 		this.elevator = elevator;
 		this.joystick = joystick;
-		smoother = new Interpolater(2.1E-5, .2);
+		smoother = new Interpolater(4.1E-5, .2);
 	}
 
 	@Override
@@ -47,6 +47,8 @@ public class ElevatorControl implements LoopModule {
 		macroRelease = true;
 		moveEndTime = 0;
 		elevator.disablePID();
+
+		elevator.setTarget(elevator.getPosition());
 
 	}
 
@@ -102,6 +104,10 @@ public class ElevatorControl implements LoopModule {
 	public void setPositionSmooth(double n, long delta) {
 		smoother.setTarget(n);
 		elevator.setTarget(smoother.getValue(delta));
+	}
+
+	public void setSmoothStart(double n) {
+		smoother.setLocation(n);
 	}
 
 	public void enablePID() {
