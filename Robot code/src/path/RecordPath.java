@@ -44,7 +44,7 @@ public class RecordPath implements LoopModule {
 		}
 
 		if (xBox.getButton(8)) {
-			System.out.println(recording + "|");
+			System.out.println(recording + "|" + loc.getLocation() + "|");
 			recording = "";
 		}
 

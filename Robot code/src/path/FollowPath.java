@@ -14,7 +14,7 @@ import sensors.Location;
 
 public class FollowPath implements AutFunction, LoopModule {
 
-	private final double crossTrackP = 6;
+	private final double crossTrackP = 6.5;
 	private final double maxAbortSpeed = 1;
 	private final long abortTimeout = 2000;
 	private final int maxAbortDistance = 12;
@@ -75,7 +75,7 @@ public class FollowPath implements AutFunction, LoopModule {
 		if (!isDone) {
 			double error = getCrossTrackError();
 
-			Robot.nBroadcaster.println(error * crossTrackP + "\t" + clamp(error * crossTrackP, 180, -180));
+			Robot.nBroadcaster.println(clamp(error * crossTrackP, 180, -180));
 
 			double dCurrent = Vector2.distance(loc.getLocation(), currentCheckpoint.getPos());
 			double dLast = Vector2.distance(loc.getLocation(), lastCheckpoint.getPos());
