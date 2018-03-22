@@ -28,6 +28,7 @@ public class MoveElevator implements AutFunction {
 	@Override
 	public void init() {
 		elevator.enablePID();
+		elevatorControl.setSmoothStart(elevator.getPosition());
 	}
 
 	@Override
