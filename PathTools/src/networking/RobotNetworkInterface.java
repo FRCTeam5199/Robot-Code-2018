@@ -7,7 +7,7 @@ import java.net.SocketException;
 
 import maths.Vector2;
 import path.Path;
-import path.RecordedPathsOld916am;
+import path.RecordedPaths;
 
 public class RobotNetworkInterface implements Runnable {
 	private final Thread t;
@@ -31,7 +31,7 @@ public class RobotNetworkInterface implements Runnable {
 		socket = null;
 		position = Vector2.ZERO.clone();
 		newPath = false;
-		path = RecordedPathsOld916am.main2();
+		path = RecordedPaths.scaleLtoR();
 		rotation = 0;
 		velocity = 0;
 		checkpointIndex = 0;
