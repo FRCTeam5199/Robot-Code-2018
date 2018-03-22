@@ -1,6 +1,7 @@
 package climber;
 
 import controllers.JoystickController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import interfaces.LoopModule;
 
 public class ClimberControl implements LoopModule {
@@ -25,19 +26,21 @@ public class ClimberControl implements LoopModule {
 	public void update(long delta) {
 		// TODO Auto-generated method stub
 
-		if (stick.getButton(5) || stick.getButton(6)) {
+		if (stick.getButton(8)) {
 			climber.setMotor(1);
-		} else if (stick.getButton(3) || stick.getButton(4)) {
+		} else if (stick.getButton(7) || stick.getButton(9)) {
 			climber.setMotor(-1);
 		} else {
 			climber.setMotor(0);
 		}
 
-		if (stick.getButtonDown(11)) {
+		if (stick.getButtonDown(11)||stick.getButtonDown(12)) {
 			climberRelease = !climberRelease;
 			climber.setPiston(climberRelease);
 		}
 
+		SmartDashboard.putBoolean("Climber release", climberRelease);
+		
 	}
 
 }
