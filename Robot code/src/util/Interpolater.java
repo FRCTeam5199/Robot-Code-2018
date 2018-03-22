@@ -28,6 +28,10 @@ public class Interpolater {
 		target = d;
 	}
 
+	public void setLocation(double d) {
+		location = d;
+	}
+
 	public double getValue(long delta) {
 		if (Math.abs(target - location) < lockMargin) {
 			return target;
