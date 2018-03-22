@@ -8,12 +8,12 @@ import networking.ByteUtils;
 public class Path {
 
 	private final double radiusBufferDist = 24;
-	private final double turnRadiusSpeedK = 5;
-	private final double maxAccel = 36; // inches per second squared
-	private final double startSpeed = 6;
+	private final double turnRadiusSpeedK = 6;
+	private final double maxAccel = 100; // inches per second squared
+	private final double startSpeed = 24;
 	private final double endSpeed = 2;
 	// private final double maxSpeed = 55;
-	private final double maxSpeed = 100;
+	private final double maxSpeed = 110;
 
 	private PathNode[] checkpoints;
 
