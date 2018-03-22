@@ -31,8 +31,8 @@ public class DriveBase {
 
 		encoderLeft = new Encoder(RobotMap.leftEncoderA, RobotMap.leftEncoderB);
 		encoderRight = new Encoder(RobotMap.rightEncoderA, RobotMap.rightEncoderB);
-		encoderLeft.setDistancePerPulse(RobotMap.inchesPerPulse);
-		encoderRight.setDistancePerPulse(RobotMap.inchesPerPulse);
+		encoderLeft.setDistancePerPulse(RobotMap.inchesPerPulseL);
+		encoderRight.setDistancePerPulse(RobotMap.inchesPerPulseR);
 
 		Robot.nBroadcaster.println("Calibating gyro...");
 		gyro.calibrate();

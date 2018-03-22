@@ -26,16 +26,16 @@ public class DriveControl implements LoopModule {
 	private final double deadzone = .075;
 
 	// Comp robot
-	private final double[] turnPIDDisplace = { 0.06, 0, 0.2 };
-	private final double[] turnPIDRate = { 0.001, 0, 0.006 };
-	private final double[] movePIDDisplace = { 0.1, 0, 0.5 };
-	private final double[] movePIDRate = { 0.005, 0, 0.025 };
+//	private final double[] turnPIDDisplace = { 0.06, 0, 0.2 };
+//	private final double[] turnPIDRate = { 0.001, 0, 0.006 };
+//	private final double[] movePIDDisplace = { 0.1, 0, 0.5 };
+//	private final double[] movePIDRate = { 0.005, 0, 0.025 };
 
 	// Test robot
-	// private final double[] turnPIDDisplace = { 0.03, 0, 0.1 };
-	// private final double[] turnPIDRate = { 0.001, 0, 0.006 };
-	// private final double[] movePIDDisplace = { 0.1, 0, 0.39 };
-	// private final double[] movePIDRate = { 0.002, .1, 0.01 };
+	private final double[] turnPIDDisplace = { 0.03, 0, 0.1 };
+	private final double[] turnPIDRate = { 0.001, 0, 0.006 };
+	private final double[] movePIDDisplace = { 0.1, 0, 0.39 };
+	private final double[] movePIDRate = { 0.002, .1, 0.01 };
 
 	private final XBoxController controller;
 
