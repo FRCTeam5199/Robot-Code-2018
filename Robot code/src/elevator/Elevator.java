@@ -14,12 +14,14 @@ public class Elevator {
 	// 1-10 ratio
 	// 18 tooth 1.432 pitch diameter
 	// 1024 ppr encoder
-	
+
 	public static final int deadzone = 7;
 	public static final int downHeight = 42;
 	public static final int downRadius = 13;
 
-	private final double inchesPerPulse = (Math.PI * 1.432d * 2) / (1024d * 9d);
+	// private final double inchesPerPulse = (Math.PI * 1.432d * 2) / (1024d *
+	// 9d);
+	private final double inchesPerPulse = (Math.PI * 1.432d * 2) / (1024d * 7d);
 	private final VictorSPXPID motor;
 	private final Encoder encoder;
 	private PIDController elevatorPID;
