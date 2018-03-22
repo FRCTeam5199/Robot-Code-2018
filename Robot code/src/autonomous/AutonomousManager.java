@@ -30,6 +30,7 @@ public class AutonomousManager {
 		}
 		if (firstRun) {
 			functions.get(0).init();
+			Robot.nBroadcaster.println(functions.get(0).getClass().getName() + " start");
 		}
 
 		firstRun = false;
@@ -38,10 +39,11 @@ public class AutonomousManager {
 			functions.get(step).update(clockRegulator.getMsPerUpdate());
 			if (functions.get(step).isDone()) {
 				functions.get(step).cleanUp();
-				Robot.nBroadcaster.println(functions.get(step).getClass().getName() + " end\t");
+				Robot.nBroadcaster.println(functions.get(step).getClass().getName() + " end");
 				step++;
 				if (step < functions.size()) {
 					functions.get(step).init();
+					Robot.nBroadcaster.println(functions.get(0).getClass().getName() + " start");
 				}
 			}
 		} else {
