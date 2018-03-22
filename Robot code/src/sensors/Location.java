@@ -30,7 +30,7 @@ public class Location implements Runnable {
 	private Vector2 location;
 
 	public Location(ADXRS450_Gyro gyro, Encoder wheelsLeft, Encoder wheelsRight) {
-		regulator = new ClockRegulator(75);
+		regulator = new ClockRegulator(100);
 
 		this.gyro = gyro;
 		this.wheelsLeft = wheelsLeft;
@@ -129,10 +129,14 @@ public class Location implements Runnable {
 			if (Robot.toolInterface != null) {
 				Robot.toolInterface.sendPos();
 			}
-			
+
 			SmartDashboard.putNumber("Encoder L", wheelsLeft.getDistance());
 			SmartDashboard.putNumber("Encoder R", wheelsRight.getDistance());
 		}
+	}
+
+	public void set(Vector2 newPos) {
+		location = newPos;
 	}
 
 	public Vector2 getLocation() {
