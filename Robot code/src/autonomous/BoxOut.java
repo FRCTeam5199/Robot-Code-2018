@@ -1,5 +1,7 @@
 package autonomous;
 
+import org.usfirst.frc.team5199.robot.Robot;
+
 import arm.Arm;
 import drive.DriveBase;
 import elevator.Elevator;
@@ -7,7 +9,7 @@ import gripper.Gripper;
 import interfaces.AutFunction;
 
 public class BoxOut implements AutFunction {
-	private final int closedDuration = 250;
+	private final int closedDuration;
 	private final int duration = 750;
 
 	private final Gripper gripper;
@@ -18,10 +20,15 @@ public class BoxOut implements AutFunction {
 	private long endTime;
 	private long openTime;
 
-	public BoxOut(Gripper gripper, Arm arm, Elevator elevator) {
+	public BoxOut(Gripper gripper, Arm arm, Elevator elevator, double power) {
 		this.gripper = gripper;
 		this.arm = arm;
 		this.elevator = elevator;
+		closedDuration = (int) (250 * power);
+	}
+
+	public BoxOut(Gripper gripper, Arm arm, Elevator elevator) {
+		this(gripper, arm, elevator, 250);
 	}
 
 	@Override
@@ -58,5 +65,6 @@ public class BoxOut implements AutFunction {
 	@Override
 	public void cleanUp() {
 		gripper.setSpeed(0);
+		gripper.open();
 	}
 }
