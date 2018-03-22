@@ -6,10 +6,10 @@ public class RobotMap {
 	// public static final double inchesPerPulse = 4;
 
 	// Comp Robot
-	public static final double inchesPerPulse = 3 * 6 * Math.PI / 2048;
+	// public static final double inchesPerPulse = 3 * 6 * Math.PI / 2048;
 	// Test Robot
-	// public static final double inchesPerPulseL = 6 * Math.PI / 1024;
-	// public static final double inchesPerPulseR = 6 * Math.PI / 2048;
+	public static final double inchesPerPulseL = 6 * Math.PI / 1024;
+	public static final double inchesPerPulseR = 6 * Math.PI / 2048;
 
 	public static final int drivemotorRight = 8;
 	public static final int drivemotorLeft = 9;
