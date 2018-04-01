@@ -3,6 +3,7 @@ package gripper;
 import org.usfirst.frc.team5199.robot.RobotMap;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 
 import edu.wpi.first.wpilibj.Solenoid;
@@ -15,6 +16,10 @@ public class Gripper {
 	public Gripper() {
 		motorL = new VictorSPX(RobotMap.gripperMotorL);
 		motorR = new VictorSPX(RobotMap.gripperMotorR);
+		
+		motorL.setNeutralMode(NeutralMode.Brake);
+		motorR.setNeutralMode(NeutralMode.Brake);
+		
 		piston = new Solenoid(RobotMap.gripperPiston);
 	}
 
