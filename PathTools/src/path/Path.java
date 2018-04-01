@@ -41,6 +41,11 @@ public class Path {
 		}
 	}
 
+	public void recalculate() {
+		checkpoints = calcTargetSpeed(checkpoints);
+		checkpoints = calcSpeed(checkpoints);
+	}
+
 	private PathNode[] calcTargetSpeed(PathNode[] path) {
 
 		for (int i = 0; i < path.length; i++) {
@@ -227,5 +232,14 @@ public class Path {
 
 	public void reset() {
 		index = -1;
+	}
+
+	public void addCheckpoint(PathNode n) {
+		PathNode[] newCheckpoints = new PathNode[checkpoints.length + 1];
+		for (int i = 0; i < checkpoints.length; i++) {
+			newCheckpoints[i] = checkpoints[i];
+		}
+		newCheckpoints[checkpoints.length] = n;
+		checkpoints = newCheckpoints;
 	}
 }
