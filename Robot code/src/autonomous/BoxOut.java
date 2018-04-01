@@ -9,26 +9,26 @@ import gripper.Gripper;
 import interfaces.AutFunction;
 
 public class BoxOut implements AutFunction {
-	private final int closedDuration;
+	private final int closedDuration = 250;
 	private final int duration = 750;
 
 	private final Gripper gripper;
 	private final Arm arm;
 	private final Elevator elevator;
-	private double height;
+	private final double power;
 
 	private long endTime;
 	private long openTime;
 
-	public BoxOut(Gripper gripper, Arm arm, Elevator elevator, double power) {
+	public BoxOut(double power, Gripper gripper, Arm arm, Elevator elevator) {
 		this.gripper = gripper;
 		this.arm = arm;
 		this.elevator = elevator;
-		closedDuration = (int) (250 * power);
+		this.power = power;
 	}
 
 	public BoxOut(Gripper gripper, Arm arm, Elevator elevator) {
-		this(gripper, arm, elevator, 250);
+		this(1, gripper, arm, elevator);
 	}
 
 	@Override
@@ -45,13 +45,11 @@ public class BoxOut implements AutFunction {
 
 	@Override
 	public void init() {
-		height = elevator.getPosition();
-
-		elevator.setTarget(height);
+		elevator.setTarget(elevator.getPosition());
 		elevator.enablePID();
 
 		gripper.close();
-		gripper.setSpeed(-1);
+		gripper.setSpeed(-power);
 
 		openTime = System.currentTimeMillis() + closedDuration;
 		endTime = System.currentTimeMillis() + duration;
