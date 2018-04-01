@@ -30,4 +30,8 @@ public class PathNode {
 	public String toString() {
 		return position + "\t" + speed;
 	}
+
+	public PathNode clone() {
+		return new PathNode(position, speed);
+	}
 }
