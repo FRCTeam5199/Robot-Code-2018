@@ -136,7 +136,15 @@ public class Location implements Runnable {
 	}
 
 	public void set(Vector2 newPos) {
+		reset();
 		location = newPos;
+		//flush out delta stuff
+		deltaLeft();
+		deltaRight();
+		deltaAngle();
+		deltaLeft();
+		deltaRight();
+		deltaAngle();
 	}
 
 	public Vector2 getLocation() {
