@@ -34,13 +34,16 @@ public class ClimberControl implements LoopModule {
 			climber.setMotor(0);
 		}
 
-		if (stick.getButtonDown(11)||stick.getButtonDown(12)) {
+		boolean b1down = stick.getButtonDown(11);
+		boolean b2down = stick.getButtonDown(12);
+
+		if (((b1down || b2down) && (stick.getButton(11) && stick.getButton(12)))) {
 			climberRelease = !climberRelease;
 			climber.setPiston(climberRelease);
 		}
 
 		SmartDashboard.putBoolean("Climber release", climberRelease);
-		
+
 	}
 
 }
