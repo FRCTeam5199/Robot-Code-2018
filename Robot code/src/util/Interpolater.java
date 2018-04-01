@@ -3,7 +3,8 @@ package util;
 import org.usfirst.frc.team5199.robot.Robot;
 
 public class Interpolater {
-	private double lockMargin;
+	private final double lockMargin;
+	private final double maxVel;
 
 	private double acceleration;
 	private double velocity;
@@ -11,8 +12,9 @@ public class Interpolater {
 
 	private double target;
 
-	public Interpolater(double acceleration, double lockMargin) {
-		this.acceleration = acceleration;
+	public Interpolater(double acceleration, double maxVel, double lockMargin) {
+		this.acceleration = acceleration / 1000;
+		this.maxVel = maxVel / 1000;
 		velocity = 0;
 		location = 0;
 		target = 0;
@@ -32,7 +34,7 @@ public class Interpolater {
 		location = d;
 	}
 
-	public double getValue(long delta) {
+	public double getValue(long delta) {		
 		if (Math.abs(target - location) < lockMargin) {
 			return target;
 		}
@@ -51,6 +53,12 @@ public class Interpolater {
 			} else {
 				velocity = -startingSpeed;
 			}
+		}
+
+		if (velocity > maxVel) {
+			velocity = maxVel;
+		} else if (velocity < -maxVel) {
+			velocity = -maxVel;
 		}
 
 		location += velocity * delta;

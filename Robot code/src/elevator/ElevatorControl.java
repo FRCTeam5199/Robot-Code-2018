@@ -1,11 +1,7 @@
 package elevator;
 
-import org.usfirst.frc.team5199.robot.Robot;
-
 import controllers.JoystickController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import interfaces.LoopModule;
-import util.EventTimer;
 import util.Interpolater;
 
 public class ElevatorControl implements LoopModule {
@@ -14,7 +10,7 @@ public class ElevatorControl implements LoopModule {
 	private final Elevator elevator;
 	private final int moveDuration = 850;
 	private final int maxHeight = 89;
-	// private final int maxHeight = Integer.MAX_VALUE;
+	// private final int maxHeight = 83;
 
 	private double deadzone = .2;
 	private double targetPos = 0;
@@ -30,17 +26,12 @@ public class ElevatorControl implements LoopModule {
 	public ElevatorControl(Elevator elevator, JoystickController joystick) {
 		this.elevator = elevator;
 		this.joystick = joystick;
-		smoother = new Interpolater(4.1E-5, .2);
+		smoother = new Interpolater(.04, 48, .2);
 	}
 
 	@Override
 	public void init() {
-		// TODO Auto-generated method stub
 
-		// SmartDashboard.putNumber("Elevator P", 0);
-		// SmartDashboard.putNumber("Elevator I", 0);
-		// SmartDashboard.putNumber("Elevator D", 0);
-		// SmartDashboard.putNumber("Interpolater accel", 0);
 		override = false;
 		deadzoneLast = false;
 		commitToMove = false;
@@ -93,6 +84,7 @@ public class ElevatorControl implements LoopModule {
 						} else {
 							elevator.disablePID();
 							elevator.setMotor(joystick.getYAxis() * joystick.getSlider());
+							// elevator.setMotor(joystick.getYAxis());
 							deadzoneLast = false;
 						}
 					}
@@ -104,6 +96,10 @@ public class ElevatorControl implements LoopModule {
 	public void setPositionSmooth(double n, long delta) {
 		smoother.setTarget(n);
 		elevator.setTarget(smoother.getValue(delta));
+	}
+
+	public void resetSmoothStart() {
+		smoother.setLocation(elevator.getPosition());
 	}
 
 	public void setSmoothStart(double n) {

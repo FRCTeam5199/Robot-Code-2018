@@ -1,11 +1,14 @@
 package autonomous;
 
+import org.usfirst.frc.team5199.robot.Robot;
+
 import drive.DriveBase;
 import drive.DriveControl;
 import interfaces.AutFunction;
 import util.Interpolater;
 
 public class MoveInterp implements AutFunction {
+	private final double maxSpeed = 100;
 	private final double distTolerance = 2;
 	private final double rateTolerance = 1;
 	private final double dist;
@@ -21,12 +24,13 @@ public class MoveInterp implements AutFunction {
 		this.base = base;
 		this.driveControl = driveControl;
 
-		interp = new Interpolater(accel / 1000, 1);
+		interp = new Interpolater(accel, maxSpeed, .5);
 	}
 
 	@Override
 	public void update(long deltaTime) {
-		base.setPIDMove(interp.getValue(deltaTime));
+		double target = interp.getValue(deltaTime);
+		driveControl.setMovePID(target);
 		base.applyPID();
 	}
 
