@@ -2,52 +2,68 @@ package gfx;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Event;
 import java.awt.Graphics;
-import java.awt.MouseInfo;
 import java.awt.Point;
-import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
-import java.text.DecimalFormat;
-import java.util.Timer;
+import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
+import javax.swing.JMenuBar;
 
 import maths.Vector2;
 import maths.Vector2I;
 import networking.RobotNetworkInterface;
 import path.Path;
 import path.PathNode;
+import tools.*;
 
 public class Display extends JFrame {
 
-	private final double inPerMeter = 39.3701;
-
 	private BufferedImage fieldImage;
-	private final double fieldImageScale = 299.65 / 568;
 	private final Vector2I fieldImageCenter = new Vector2I(240, 1477);
-	// private final Vector2I fieldImageCenter = new Vector2I(328, 1469);
-	// private final Vector2I fieldImageCenter = new Vector2I(35, 35);
-
+	private final double inPerMeter = 39.3701;
+	private final double fieldImageScale = 299.65 / 568;
 	private final int borderSize = 100;
+	private final int maxScale = 6;
 
 	private final RobotNetworkInterface robotInterface;
+	private final ToolHandler toolHandler;
+	private final JMenuBar menuBar;
 	private Path path;
 
+	private Point lastMousePos;
+	private Vector2 origin;
+	private Vector2 cursorPos;
 	private double scale;
 	private double maxSpeed;
 	private double colorScale;
 	private double dWidth;
 	private double dHeight;
-	private Vector2 origin;
+	private boolean lockScale;
 
 	public Display(RobotNetworkInterface robotInterface, Path path) {
 		super("Path Tools");
 		this.robotInterface = robotInterface;
 		this.path = path;
+
+		toolHandler = new ToolHandler(path, this);
+		toolHandler.add(new Save());
+		toolHandler.add(new Brush());
+		toolHandler.add(new Grab());
+		toolHandler.add(new Scale());
+		toolHandler.add(new Rotate());
+		toolHandler.add(new Extrude());
+		toolHandler.add(new AddSelect());
+		toolHandler.add(new SingleSelect());
+		toolHandler.add(new SelectAll());
+		toolHandler.add(new SelectBox());
+		toolHandler.add(new MoveCursor());
+
+		addKeyListener(toolHandler);
+		addMouseListener(toolHandler);
+		addMouseWheelListener(toolHandler);
 
 		try {
 			fieldImage = ImageIO.read(getClass().getClassLoader().getResource("Field.png"));
@@ -56,6 +72,17 @@ public class Display extends JFrame {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
+		lockScale = false;
+
+		cursorPos = Vector2.ZERO.clone();
+
+		menuBar = new JMenuBar();
+		// JMenu menu = new JMenu
+
+		// menuBar.setVisible(true);
+
+		add(menuBar);
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(1280, 720);
@@ -80,49 +107,72 @@ public class Display extends JFrame {
 		drawField(g);
 		drawGrid(g);
 		drawPath(g);
-		drawScale(g);
 		drawRobot(g);
+		drawSelected(g);
+		drawCursor(g);
+		toolHandler.update(g);
+		drawScale(g);
 		mouseInfo(g);
 
 		return output;
 	}
 
+	public void lockScale() {
+		lockScale = true;
+	}
+
+	public void unlockScale() {
+		lockScale = false;
+	}
+
+	public void setLockScale(boolean b) {
+		lockScale = b;
+	}
+
 	private void configGraph() {
 
-		Vector2 robotPos = robotInterface.getPosition();
+		if (!lockScale) {
 
-		int xMin = (int) robotPos.getX();
-		int xMax = xMin;
-		int yMin = (int) robotPos.getY();
-		int yMax = yMin;
+			Vector2 robotPos = robotInterface.getPosition();
 
-		for (int i = 0; i < path.getLength(); i++) {
-			Vector2 pos = path.getCheckpoint(i).getPos();
-			if (pos.getX() < xMin) {
-				xMin = (int) pos.getX();
-			}
-			if (pos.getX() > xMax) {
-				xMax = (int) pos.getX();
-			}
-			if (pos.getY() < yMin) {
-				yMin = (int) pos.getY();
-			}
-			if (pos.getY() > yMax) {
-				yMax = (int) pos.getY();
+			int xMin = (int) robotPos.getX();
+			int xMax = xMin;
+			int yMin = (int) robotPos.getY();
+			int yMax = yMin;
+
+			for (int i = 0; i < path.getLength(); i++) {
+				Vector2 pos = path.getCheckpoint(i).getPos();
+				if (pos.getX() < xMin) {
+					xMin = (int) pos.getX();
+				}
+				if (pos.getX() > xMax) {
+					xMax = (int) pos.getX();
+				}
+				if (pos.getY() < yMin) {
+					yMin = (int) pos.getY();
+				}
+				if (pos.getY() > yMax) {
+					yMax = (int) pos.getY();
+				}
+
+				if (path.getCheckpoint(i).getSpeed() > maxSpeed) {
+					maxSpeed = path.getCheckpoint(i).getSpeed();
+				}
 			}
 
-			if (path.getCheckpoint(i).getSpeed() > maxSpeed) {
-				maxSpeed = path.getCheckpoint(i).getSpeed();
+			dWidth = xMax - xMin;
+			dHeight = yMax - yMin;
+
+			scale = Math.min((getWidth() - 2d * borderSize) / dWidth, (getHeight() - 2d * borderSize) / dHeight);
+
+			if (scale > maxScale) {
+				scale = maxScale;
 			}
+
+			colorScale = 700d / maxSpeed;
+
+			origin = new Vector2(-xMin * scale, -yMin * scale);
 		}
-
-		dWidth = xMax - xMin;
-		dHeight = yMax - yMin;
-
-		scale = Math.min((getWidth() - 2d * borderSize) / dWidth, (getHeight() - 2d * borderSize) / dHeight);
-		colorScale = 700d / maxSpeed;
-
-		origin = new Vector2(-xMin * scale, -yMin * scale);
 
 	}
 
@@ -249,6 +299,57 @@ public class Display extends JFrame {
 		g.drawString("Speed: " + robotInterface.getVelocity(), 30, getHeight() - 30);
 	}
 
+	private void drawSelected(Graphics g) {
+		ArrayList<PathNode> selected = toolHandler.getSelected();
+
+		for (PathNode node : selected) {
+			g.setColor(flashCycle(Color.WHITE, 1000));
+			g.drawOval(toScreenX(node.getPos().getX()) - 6, toScreenY(node.getPos().getY()) - 6, 12, 12);
+		}
+	}
+
+	private void drawCursor(Graphics g) {
+		int circleR = 10;
+		int crossRin = 6;
+		int crossRout = 18;
+
+		Vector2 pos = toScreen(cursorPos);
+
+		int xPos = (int) pos.getX();
+		int yPos = (int) pos.getY();
+
+		drawDottedCircle(g, pos, circleR, 14, Color.RED, Color.WHITE);
+
+		g.setColor(Color.BLACK);
+
+		g.drawLine(xPos + crossRin, yPos, xPos + crossRout, yPos);
+		g.drawLine(xPos - crossRin, yPos, xPos - crossRout, yPos);
+		g.drawLine(xPos, yPos + crossRin, xPos, yPos + crossRout);
+		g.drawLine(xPos, yPos - crossRin, xPos, yPos - crossRout);
+
+	}
+
+	private void drawDottedCircle(Graphics g, Vector2 pos, int radius, int segments, Color c1, Color c2) {
+		// Vector2 centerPos = new Vector2(pos.getX() - radius, pos.getY() -
+		// radius);
+		Vector2 lastPos = new Vector2(pos.getX() + radius, pos.getY());
+		boolean color1 = false;
+		double interval = (2 * Math.PI) / segments;
+		for (double i = 0; i <= (Math.PI * 2d) + 1; i += interval) {
+			if (color1) {
+				g.setColor(c1);
+			} else {
+				g.setColor(c2);
+			}
+
+			color1 = !color1;
+			Vector2 newPos = new Vector2(Math.cos(i) * radius, Math.sin(i) * radius);
+			newPos = Vector2.add(newPos, pos);
+			g.drawLine((int) lastPos.getX(), (int) lastPos.getY(), (int) newPos.getX(), (int) newPos.getY());
+			lastPos = newPos;
+		}
+	}
+
 	private void mouseInfo(Graphics g) {
 		if (getMousePosition() == null) {
 			return;
@@ -264,9 +365,9 @@ public class Display extends JFrame {
 				PathNode node = path.getCheckpoint(i);
 
 				g.setColor(flashCycle(colorCycle(node.getSpeed() * colorScale), 1000));
-				g.fillOval(x - 10, y - 10, 20, 20);
+				g.fillOval(x - 7, y - 7, 14, 14);
 				g.setColor(Color.WHITE);
-				g.drawOval(x - 10, y - 10, 20, 20);
+				g.drawOval(x - 7, y - 7, 14, 14);
 				g.drawString("Node " + i + " : " + node.getPos(), x + 20, y + 20);
 				g.drawString("Speed: " + node.getSpeed() + " in/s", x + 20, y + 35);
 				g.drawString("              " + node.getSpeed() / inPerMeter + " m/s", x + 20, y + 50);
@@ -281,7 +382,7 @@ public class Display extends JFrame {
 		double mouseFieldX = (int) (toFieldXD(mousePos.getX()) * 100) / 100d;
 		double mouseFieldY = (int) (toFieldYD(mousePos.getY()) * 100) / 100d;
 
-		g.drawString(mouseFieldX + ", " + mouseFieldY, getWidth() - 150, 50);
+		g.drawString(mouseFieldX + ", " + mouseFieldY, getWidth() - 100, 50);
 
 	}
 
@@ -293,31 +394,35 @@ public class Display extends JFrame {
 		g.fillOval(toScreenX(x) - 5, toScreenY(y) - 5, 10, 10);
 	}
 
-	private double toFieldXD(double x) {
+	public Vector2 toField(Vector2 v) {
+		return new Vector2(toFieldXD(v.getX()), toFieldYD(v.getY()));
+	}
+
+	public double toFieldXD(double x) {
 		return (x - borderSize - origin.getX()) / scale;
 	}
 
-	private double toFieldYD(double y) {
+	public double toFieldYD(double y) {
 		return -(((y - borderSize + origin.getY()) / scale) - dHeight);
 	}
 
-	private double toScreenXD(double x) {
+	public double toScreenXD(double x) {
 		return (x * scale + origin.getX()) + borderSize;
 	}
 
-	private double toScreenYD(double y) {
+	public double toScreenYD(double y) {
 		return ((dHeight - y) * scale - origin.getY()) + borderSize;
 	}
 
-	private int toScreenX(double x) {
+	public int toScreenX(double x) {
 		return (int) toScreenXD(x);
 	}
 
-	private int toScreenY(double y) {
+	public int toScreenY(double y) {
 		return (int) toScreenYD(y);
 	}
 
-	private Vector2 toScreen(Vector2 p) {
+	public Vector2 toScreen(Vector2 p) {
 		return new Vector2(toScreenX(p.getX()), toScreenY(p.getY()));
 	}
 
@@ -345,6 +450,11 @@ public class Display extends JFrame {
 		}
 	}
 
+	public Path clearPath() {
+		path = new Path("|0,0|");
+		return path;
+	}
+
 	public void update() {
 		repaint();
 	}
@@ -352,6 +462,23 @@ public class Display extends JFrame {
 	public void setPath(Path path) {
 		maxSpeed = 0;
 		this.path = path;
+	}
+
+	public void setCursorPos(Vector2 pos) {
+		cursorPos = pos;
+	}
+
+	public Vector2 getCursorPos() {
+		return cursorPos;
+	}
+
+	public Point getMousePosition() {
+		Point newPos = super.getMousePosition();
+		if (newPos != null) {
+			lastMousePos = newPos;
+		}
+		return lastMousePos;
+
 	}
 
 }
