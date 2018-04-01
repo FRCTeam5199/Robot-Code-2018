@@ -3,13 +3,10 @@ package drive;
 import org.usfirst.frc.team5199.robot.Robot;
 
 import controllers.XBoxController;
-import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.PIDSourceType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import interfaces.LoopModule;
-import maths.Vector2;
-import maths.Vector3;
 
 public class DriveControl implements LoopModule {
 	private final DriveBase base;
@@ -25,17 +22,17 @@ public class DriveControl implements LoopModule {
 	private final double radToDegrees = 180 / Math.PI;
 	private final double deadzone = .075;
 
-	// Comp robot
-//	private final double[] turnPIDDisplace = { 0.06, 0, 0.2 };
-//	private final double[] turnPIDRate = { 0.001, 0, 0.006 };
-//	private final double[] movePIDDisplace = { 0.1, 0, 0.5 };
-//	private final double[] movePIDRate = { 0.005, 0, 0.025 };
-
-	// Test robot
-	private final double[] turnPIDDisplace = { 0.03, 0, 0.1 };
+	//	 Comp robot
+	private final double[] turnPIDDisplace = { 0.06, 0, 0.2 };
 	private final double[] turnPIDRate = { 0.001, 0, 0.006 };
-	private final double[] movePIDDisplace = { 0.1, 0, 0.39 };
-	private final double[] movePIDRate = { 0.002, .1, 0.01 };
+	private final double[] movePIDDisplace = { 0.1, 0, 0.5 };
+	private final double[] movePIDRate = { 0.005, 0, 0.025 };
+
+//	// Test robot
+//	private final double[] turnPIDDisplace = { 0.03, 0, 0.1 };
+//	private final double[] turnPIDRate = { 0.001, 0, 0.006 };
+//	private final double[] movePIDDisplace = { 0.1, 0, 0.39 };
+//	private final double[] movePIDRate = { 0.002, .1, 0.01 };
 
 	private final XBoxController controller;
 
@@ -349,6 +346,6 @@ public class DriveControl implements LoopModule {
 	}
 
 	public enum DriveMode {
-		TANK, TANK_ASSISTED, ARCADE, ARCADE_ASSISTED, POINT;
+		TANK, TANK_ASSISTED, ARCADE_ASSISTED, POINT;
 	}
 }
