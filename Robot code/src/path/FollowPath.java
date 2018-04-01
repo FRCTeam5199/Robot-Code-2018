@@ -27,6 +27,7 @@ public class FollowPath implements AutFunction, LoopModule {
 	private final Location loc;
 	private final Path path;
 	private final boolean isAutonomous;
+	private final boolean isReversed;
 
 	private double[] nodeLineSlopes;
 	private double[] nodeLineAngles;
@@ -39,7 +40,7 @@ public class FollowPath implements AutFunction, LoopModule {
 
 	private boolean isDone;
 
-	public FollowPath(boolean isAutonomous, Path path, DriveControl driveControl, DriveBase base,
+	public FollowPath(boolean isAutonomous, boolean isReversed, Path path, DriveControl driveControl, DriveBase base,
 			XBoxController controller) {
 		this.controller = controller;
 		this.driveControl = driveControl;
@@ -47,6 +48,8 @@ public class FollowPath implements AutFunction, LoopModule {
 		this.path = path;
 
 		this.isAutonomous = isAutonomous;
+		this.isReversed = isReversed;
+
 		isDone = false;
 		loc = base.getLocation();
 	}
@@ -104,7 +107,16 @@ public class FollowPath implements AutFunction, LoopModule {
 
 			interpAngle *= radToDeg;
 
-			driveControl.setTurnPID(interpAngle - clamp(error * crossTrackP, 90, -90));
+			double finalAngle = interpAngle;
+
+			if (isReversed) {
+				finalAngle += clamp(error * crossTrackP, 90, -90);
+				interpSpeed = -interpSpeed;
+			} else {
+				finalAngle -= clamp(error * crossTrackP, 90, -90);
+			}
+
+			driveControl.setTurnPID(finalAngle);
 			driveControl.setMovePID(interpSpeed);
 
 			if (isAutonomous || controller.getButton(1)) {
