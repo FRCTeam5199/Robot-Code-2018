@@ -21,7 +21,7 @@ public class Elevator {
 
 	// private final double inchesPerPulse = (Math.PI * 1.432d * 2) / (1024d *
 	// 9d);
-	private final double inchesPerPulse = (Math.PI * 1.432d * 2) / (1024d * 7d);
+	
 	private final VictorSPXPID motor;
 	private final Encoder encoder;
 	private PIDController elevatorPID;
@@ -29,7 +29,7 @@ public class Elevator {
 	public Elevator() {
 		motor = new VictorSPXPID(RobotMap.liftMotor);
 		encoder = new Encoder(RobotMap.liftEncoderA, RobotMap.liftEncoderB);
-		encoder.setDistancePerPulse(inchesPerPulse);
+		encoder.setDistancePerPulse(RobotMap.elevatorIPP);
 		elevatorPID = new PIDController(0.4, 0, 0.3, encoder, motor);
 
 	}
@@ -46,6 +46,12 @@ public class Elevator {
 		elevatorPID.disable();
 	}
 
+	public void initAdjustPID(){
+		SmartDashboard.putNumber("Elevator P", 0);
+		SmartDashboard.putNumber("Elevator I", 0);
+		SmartDashboard.putNumber("Elevator D", 0);
+	}
+	
 	public void adjustPID() {
 		elevatorPID.setP(SmartDashboard.getNumber("Elevator P", 0));
 		elevatorPID.setI(SmartDashboard.getNumber("Elevator I", 0));

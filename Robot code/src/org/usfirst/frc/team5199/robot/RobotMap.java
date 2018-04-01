@@ -2,14 +2,16 @@ package org.usfirst.frc.team5199.robot;
 
 public class RobotMap {
 	private static final int mxpOffset = 10;
+
+	public final static double elevatorIPP = (Math.PI * 1.432d * 2) / (1024d * 9d);
 	// public static final double inchesPerPulse = 6 * Math.PI * 3 * 3 / 1024;
 	// public static final double inchesPerPulse = 4;
 
-	// Comp Robot
-	// public static final double inchesPerPulse = 3 * 6 * Math.PI / 2048;
-	// Test Robot
-	public static final double inchesPerPulseL = 6 * Math.PI / 1024;
-	public static final double inchesPerPulseR = 6 * Math.PI / 2048;
+	//	 Comp Robot
+	 public static final double wheelEncoderIPP = 3 * 6 * Math.PI / 2048;
+//	// Test Robot
+//	public static final double wheelEncoderLIPP = 6 * Math.PI / 1024;
+//	public static final double wheelEncoderRIPP = 6 * Math.PI / 2048;
 
 	public static final int drivemotorRight = 8;
 	public static final int drivemotorLeft = 9;
