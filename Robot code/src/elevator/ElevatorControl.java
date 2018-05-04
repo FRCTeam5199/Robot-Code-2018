@@ -9,7 +9,8 @@ public class ElevatorControl implements LoopModule {
 	private final JoystickController joystick;
 	private final Elevator elevator;
 	private final int moveDuration = 850;
-	private final int maxHeight = 89;
+	// private final int maxHeight = 89;
+	private final int maxHeight = Integer.MAX_VALUE;
 	// private final int maxHeight = 83;
 
 	private double deadzone = .2;
@@ -51,7 +52,7 @@ public class ElevatorControl implements LoopModule {
 
 		if (override) {
 			elevator.disablePID();
-			elevator.setMotor(joystick.getSlider() * joystick.getYAxis());
+			elevator.setMotor(joystick.getYAxis());
 		} else {
 			if (commitToMove) {
 				commitToMove = System.currentTimeMillis() < moveEndTime;
@@ -83,8 +84,7 @@ public class ElevatorControl implements LoopModule {
 							elevator.enablePID();
 						} else {
 							elevator.disablePID();
-							elevator.setMotor(joystick.getYAxis() * joystick.getSlider());
-							// elevator.setMotor(joystick.getYAxis());
+							elevator.setMotor(joystick.getYAxis());
 							deadzoneLast = false;
 						}
 					}
@@ -116,6 +116,12 @@ public class ElevatorControl implements LoopModule {
 
 	public void setPIDEnabled(boolean b) {
 		elevator.setPIDEnabled(b);
+	}
+
+	@Override
+	public void cleanUp() {
+		// TODO Auto-generated method stub
+
 	}
 
 }
