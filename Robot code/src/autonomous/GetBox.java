@@ -13,10 +13,10 @@ import sensors.Location;
 public class GetBox implements AutFunction {
 
 	private final double radToDeg = 180 / Math.PI;
-	private final double speed = 30;
-	private final int moveRange = 4;
+	private final double speed = 80;
+	private final int moveRange = 5;
 	private final int doneRadius = 4;
-	private final int intakeDist = 26;
+	private final int intakeDist = 42;
 
 	private final Location location;
 	private final DriveBase base;
@@ -24,8 +24,13 @@ public class GetBox implements AutFunction {
 	private final ElevatorControl elevatorControl;
 	private final Gripper gripper;
 	private final Vector2 boxPos;
+	private final double stuckSpeed = 1;
+	private final int stuckTimeout = 2000;
 
 	private double targetAngle;
+	private long stuckStartTime;
+
+	private boolean isStuck;
 
 	public GetBox(Vector2 boxPos, DriveBase base, DriveControl driveControl, ElevatorControl elevatorControl,
 			Gripper gripper) {
@@ -41,6 +46,14 @@ public class GetBox implements AutFunction {
 
 	@Override
 	public void update(long deltaTime) {
+		if (Math.abs(base.getAvgRate()) < stuckSpeed) {
+			if (System.currentTimeMillis() - stuckStartTime >= stuckTimeout) {
+				isStuck = true;
+			}
+		} else {
+			stuckStartTime = System.currentTimeMillis();
+		}
+
 		Vector2 robotPos = location.getLocation();
 		elevatorControl.setPositionSmooth(1, deltaTime);
 
@@ -49,22 +62,21 @@ public class GetBox implements AutFunction {
 
 		double error = base.getGyro().getAngle() - targetAngle;
 
-		while (targetAngle < -180) {
+		while (error < -180) {
 			error += 360;
 		}
-		while (targetAngle > 180) {
+		while (error > 180) {
 			error -= 360;
 		}
 
 		if (Math.abs(error) < moveRange) {
-			base.setPIDMove(speed);
+			driveControl.setMovePID(speed);
 		} else {
-			base.setPIDMove(0);
+			driveControl.setMovePID(0);
 		}
 
-		
 		base.applyPID();
-		
+
 		Robot.nBroadcaster.println(Vector2.distance(location.getLocation(), boxPos));
 
 	}
@@ -77,16 +89,21 @@ public class GetBox implements AutFunction {
 		gripper.open();
 		elevatorControl.resetSmoothStart();
 		elevatorControl.enablePID();
-		
+
 		driveControl.setTurnPIDDisplace();
 		driveControl.setMovePIDRate();
-		
+
 		driveControl.enableTurnPID();
 		driveControl.enableMovePID();
+
+		isStuck = false;
 	}
 
 	@Override
 	public boolean isDone() {
+		if (isStuck) {
+			return true;
+		}
 		Vector2 intakePos = Vector2.rotateCW(new Vector2(0, intakeDist), location.getRot());
 		intakePos = Vector2.add(intakePos, location.getLocation());
 		return Vector2.distance(intakePos, boxPos) < doneRadius;

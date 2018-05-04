@@ -10,10 +10,10 @@ import interfaces.AutFunction;
 import maths.Vector2;
 import sensors.Location;
 
-public class GoTo implements AutFunction {
+public class GoToReverse implements AutFunction {
 
 	private final double radToDeg = 180 / Math.PI;
-	private final double speed = 80;
+	private final double speed = 36;
 	private final int moveRange = 5;
 	private final int stopTurnRadius = 3;
 	private final int doneRadius = 2;
@@ -25,7 +25,7 @@ public class GoTo implements AutFunction {
 
 	private double targetAngle;
 
-	public GoTo(Vector2 pos, DriveBase base, DriveControl driveControl) {
+	public GoToReverse(Vector2 pos, DriveBase base, DriveControl driveControl) {
 		this.pos = pos;
 		this.base = base;
 		this.driveControl = driveControl;
@@ -38,7 +38,7 @@ public class GoTo implements AutFunction {
 	public void update(long deltaTime) {
 		Vector2 robotPos = location.getLocation();
 		if (Vector2.distance(location.getLocation(), pos) > stopTurnRadius) {
-			targetAngle = radToDeg * Math.atan2(pos.getX() - robotPos.getX(), pos.getY() - robotPos.getY());
+			targetAngle = getTargetAngle(robotPos);
 		}
 
 		driveControl.setTurnPID(targetAngle);
@@ -53,7 +53,7 @@ public class GoTo implements AutFunction {
 		}
 
 		if (Math.abs(error) < moveRange) {
-			driveControl.setMovePID(speed);
+			driveControl.setMovePID(-speed);
 		} else {
 			driveControl.setMovePID(0);
 		}
@@ -64,15 +64,18 @@ public class GoTo implements AutFunction {
 
 	}
 
+	private double getTargetAngle(Vector2 robotPos) {
+		return targetAngle = 180 + (radToDeg * Math.atan2(pos.getX() - robotPos.getX(), pos.getY() - robotPos.getY()));
+	}
+
 	@Override
 	public void init() {
 		Vector2 robotPos = location.getLocation();
-		targetAngle = radToDeg * Math.atan2(pos.getX() - robotPos.getX(), pos.getY() - robotPos.getY());
+		targetAngle = getTargetAngle(robotPos);
 
 		driveControl.setTurnPIDDisplace();
 		driveControl.setMovePIDRate();
-		
-		
+
 		driveControl.enableTurnPID();
 		driveControl.enableMovePID();
 	}
