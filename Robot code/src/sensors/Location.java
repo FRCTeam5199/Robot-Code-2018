@@ -136,9 +136,14 @@ public class Location implements Runnable {
 	}
 
 	public void set(Vector2 newPos) {
+		set(newPos, 0);
+	}
+
+	public void set(Vector2 newPos, double angle) {
 		reset();
+		gyroZero -= angle;
 		location = newPos;
-		//flush out delta stuff
+		// flush out delta stuff
 		deltaLeft();
 		deltaRight();
 		deltaAngle();

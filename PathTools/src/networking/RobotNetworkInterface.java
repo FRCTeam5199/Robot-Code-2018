@@ -15,6 +15,10 @@ public class RobotNetworkInterface implements Runnable {
 	private DatagramSocket socket;
 
 	private final Vector2 robotDim = new Vector2(34, 39);
+	private final Vector2 ultraFrontPos = new Vector2(robotDim.getX() / 2, robotDim.getY());
+	private final Vector2 ultraRearPos = new Vector2(9.9375, 0);
+	private final Vector2 ultraLeftPos = new Vector2(0, 26.5);
+	private final Vector2 ultraRightPos = new Vector2(robotDim.getX(), ultraLeftPos.getY());
 	private final Vector2 pivotPos = new Vector2(robotDim.getX() / 2, 4.625);
 
 	private boolean isAlive;
@@ -23,6 +27,10 @@ public class RobotNetworkInterface implements Runnable {
 	private Vector2 position;
 	private double rotation;
 	private double velocity;
+	private double ultraFront;
+	private double ultraRear;
+	private double ultraLeft;
+	private double ultraRight;
 	private int checkpointIndex;
 	private boolean newPath;
 
@@ -34,6 +42,10 @@ public class RobotNetworkInterface implements Runnable {
 		path = RecordedPaths.scaleLtoR();
 		rotation = 0;
 		velocity = 0;
+		ultraFront = 0;
+		ultraRear = 0;
+		ultraLeft = 0;
+		ultraRight = 0;
 		checkpointIndex = 0;
 		this.port = port;
 	}
@@ -88,6 +100,11 @@ public class RobotNetworkInterface implements Runnable {
 			case 2:
 				checkpointIndex = ByteUtils.toInt(ByteUtils.portionOf(data, 4, 8));
 				break;
+			case 3:
+				ultraFront = ByteUtils.toDouble(ByteUtils.portionOf(data, 4, 12));
+				ultraRear = ByteUtils.toDouble(ByteUtils.portionOf(data, 12, 20));
+				ultraLeft = ByteUtils.toDouble(ByteUtils.portionOf(data, 20, 28));
+				ultraRight = ByteUtils.toDouble(ByteUtils.portionOf(data, 28, 36));
 			}
 
 		}
@@ -119,6 +136,22 @@ public class RobotNetworkInterface implements Runnable {
 		return velocity;
 	}
 
+	public double getUltraFront() {
+		return ultraFront;
+	}
+
+	public double getUltraRear() {
+		return ultraRear;
+	}
+
+	public double getUltraLeft() {
+		return ultraLeft;
+	}
+
+	public double getUltraRight() {
+		return ultraRight;
+	}
+
 	public int getCheckpointIndex() {
 		return checkpointIndex;
 	}
@@ -129,5 +162,21 @@ public class RobotNetworkInterface implements Runnable {
 
 	public Vector2 getPivotPos() {
 		return pivotPos;
+	}
+
+	public Vector2 getUltraFrontPos() {
+		return ultraFrontPos;
+	}
+
+	public Vector2 getUltraRearPos() {
+		return ultraRearPos;
+	}
+
+	public Vector2 getUltraLeftPos() {
+		return ultraLeftPos;
+	}
+
+	public Vector2 getUltraRightPos() {
+		return ultraRightPos;
 	}
 }

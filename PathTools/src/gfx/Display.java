@@ -33,6 +33,7 @@ public class Display extends JFrame {
 	private final JMenuBar menuBar;
 	private Path path;
 
+	private BufferedImage ultraOverlay;
 	private Point lastMousePos;
 	private Vector2 origin;
 	private Vector2 cursorPos;
@@ -72,6 +73,8 @@ public class Display extends JFrame {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		ultraOverlay = new BufferedImage(fieldImage.getWidth(),fieldImage.getHeight(),BufferedImage.TYPE_INT_RGB);
 
 		lockScale = false;
 
@@ -96,7 +99,7 @@ public class Display extends JFrame {
 	}
 
 	private BufferedImage draw() {
-		BufferedImage output = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
+		BufferedImage output = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
 
 		Graphics g = output.getGraphics();
 
@@ -105,6 +108,7 @@ public class Display extends JFrame {
 
 		configGraph();
 		drawField(g);
+		drawUltraInfo(g);
 		drawGrid(g);
 		drawPath(g);
 		drawRobot(g);
@@ -181,6 +185,10 @@ public class Display extends JFrame {
 				toScreenY(fieldImageCenter.getY() * fieldImageScale),
 				toScreenX(fieldImage.getWidth() * fieldImageScale) - toScreenX(0),
 				toScreenY(0) - toScreenY(fieldImage.getHeight() * fieldImageScale), this);
+	}
+	
+	private void drawUltraInfo(Graphics g){
+		Vector2 ultraFront = robotInterface.getUltraFrontPos();
 	}
 
 	private void drawGrid(Graphics g) {

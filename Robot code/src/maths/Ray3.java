@@ -9,13 +9,13 @@ package maths;
  *
  * @author watom
  */
-public class Ray {
+public class Ray3 {
 
     private Vector3 start;
     private double xRot;
     private double yRot;
 
-    public Ray(Vector3 start, double xRot, double yRot) {
+    public Ray3(Vector3 start, double xRot, double yRot) {
         this.start = start;
         this.xRot = xRot;
         this.yRot = yRot;
