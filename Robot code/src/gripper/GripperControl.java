@@ -47,4 +47,10 @@ public class GripperControl implements LoopModule {
 
 	}
 
+	@Override
+	public void cleanUp() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

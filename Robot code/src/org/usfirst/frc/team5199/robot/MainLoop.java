@@ -26,6 +26,12 @@ public class MainLoop {
 			o.init();
 		}
 	}
+	
+	public void cleanUp() {
+		for (LoopModule o : objects) {
+			o.cleanUp();
+		}
+	}
 
 	public void add(LoopModule o) {
 		objects.add(o);

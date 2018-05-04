@@ -24,4 +24,10 @@ public class WheelieBarControl implements LoopModule {
 	public void update(long delta) {
 		wheelieBars.set(joy.getButton(8) || System.currentTimeMillis() < endTime);
 	}
+
+	@Override
+	public void cleanUp() {
+		// TODO Auto-generated method stub
+		
+	}
 }
