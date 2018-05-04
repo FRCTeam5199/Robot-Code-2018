@@ -18,6 +18,7 @@ public class ClimberControl implements LoopModule {
 	@Override
 	public void init() {
 		// TODO Auto-generated method stub
+		climber.setBrakeOn();
 		climberRelease = false;
 		climber.lock();
 	}
@@ -44,6 +45,11 @@ public class ClimberControl implements LoopModule {
 
 		SmartDashboard.putBoolean("Climber release", climberRelease);
 
+	}
+
+	@Override
+	public void cleanUp() {
+		climber.setBrakeOff();
 	}
 
 }

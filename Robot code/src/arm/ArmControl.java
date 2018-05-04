@@ -50,4 +50,10 @@ public class ArmControl implements LoopModule {
 	public Arm getArm() {
 		return arm;
 	}
+
+	@Override
+	public void cleanUp() {
+		// TODO Auto-generated method stub
+		
+	}
 }
