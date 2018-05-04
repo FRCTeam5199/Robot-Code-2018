@@ -22,17 +22,17 @@ public class DriveControl implements LoopModule {
 	private final double radToDegrees = 180 / Math.PI;
 	private final double deadzone = .075;
 
-	//	 Comp robot
-	private final double[] turnPIDDisplace = { 0.06, 0, 0.2 };
+	// Comp robot
+	private final double[] turnPIDDisplace = { 0.06, 0.0002, 0.2 };
 	private final double[] turnPIDRate = { 0.001, 0, 0.006 };
 	private final double[] movePIDDisplace = { 0.1, 0, 0.5 };
 	private final double[] movePIDRate = { 0.005, 0, 0.025 };
 
-//	// Test robot
-//	private final double[] turnPIDDisplace = { 0.03, 0, 0.1 };
-//	private final double[] turnPIDRate = { 0.001, 0, 0.006 };
-//	private final double[] movePIDDisplace = { 0.1, 0, 0.39 };
-//	private final double[] movePIDRate = { 0.002, .1, 0.01 };
+	// // Test robot
+	// private final double[] turnPIDDisplace = { 0.03, 0.0003, 0.1 };
+	// private final double[] turnPIDRate = { 0.001, 0, 0.006 };
+	// private final double[] movePIDDisplace = { 0.1, 0, 0.39 };
+	// private final double[] movePIDRate = { 0.002, .1, 0.01 };
 
 	private final XBoxController controller;
 
@@ -66,25 +66,28 @@ public class DriveControl implements LoopModule {
 		base.setGearbox(controller.getButton(6));
 		// adjustMovePID();
 
+		String ultraInfo = "Front\t" + base.getUltraFront() + "\nRear\t" + base.getUltraRear() + "\nRight\t"
+				+ base.getUltraRight() + "\nLeft\t" + base.getUltraLeft() + "\n";
+		// Robot.nBroadcaster.println(ultraInfo);
+
 		selectDriveMode();
-		if (controller.getButton(8)) {
-			//
-		} else {
-			switch (driveMode) {
-			case POINT:
-				pointControl(delta);
-				break;
-			case TANK_ASSISTED:
-				tankControlAssisted();
-				break;
-			case ARCADE_ASSISTED:
-				arcadeControlAssisted();
-				break;
-			case TANK:
-				tankControl();
-				break;
-			}
+
+		switch (driveMode) {
+		case POINT:
+			pointControl(delta);
+			break;
+		case TANK_ASSISTED:
+			tankControlAssisted();
+			break;
+		case ARCADE_ASSISTED:
+			arcadeControlAssisted();
+			break;
+		case TANK:
+			tankControl();
+			break;
 		}
+
+		SmartDashboard.putBoolean("Box in", (base.getUltraFront() < 6.75));
 
 	}
 
@@ -347,5 +350,11 @@ public class DriveControl implements LoopModule {
 
 	public enum DriveMode {
 		TANK, TANK_ASSISTED, ARCADE_ASSISTED, POINT;
+	}
+
+	@Override
+	public void cleanUp() {
+		// TODO Auto-generated method stub
+
 	}
 }
