@@ -1,5 +1,7 @@
 package sensors;
 
+import org.usfirst.frc.team5199.robot.Robot;
+
 import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 import edu.wpi.first.wpilibj.interfaces.Accelerometer.Range;
 import maths.Vector3;
@@ -14,7 +16,7 @@ public class Accelerometer {
 	}
 
 	public void calibrate(long time) {
-		System.out.println("Calibrating accelerometer...");
+		Robot.nBroadcaster.println("Calibrating accelerometer...");
 
 		Vector3 newDrift = Vector3.zero();
 		int count = 0;
@@ -27,7 +29,7 @@ public class Accelerometer {
 		}
 		newDrift = Vector3.divide(newDrift, count);
 
-		System.out.println("Drifting at " + newDrift);
+		Robot.nBroadcaster.println("Drifting at " + newDrift);
 
 		drift = newDrift;
 	}

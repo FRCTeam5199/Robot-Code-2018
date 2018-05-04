@@ -19,7 +19,7 @@ public class ClockRegulator {
 		long elapsed = System.currentTimeMillis() - lastTime;
 		long waitTime = msPerUpdate - elapsed;
 		if (waitTime < 0) {
-			 System.out.println("Can't Keep Up! " + -waitTime + " ms behind!");
+			 Robot.nBroadcaster.println("Can't Keep Up! " + -waitTime + " ms behind!");
 		} else {
 			try {
 				Thread.sleep(waitTime);
