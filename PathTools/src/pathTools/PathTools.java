@@ -8,7 +8,7 @@ import util.ClockRegulator;
 
 public class PathTools {
 	public static void main(String[] args) {
-		// ClockRegulator clockRegulator = new ClockRegulator(15);
+		ClockRegulator clockRegulator = new ClockRegulator(60);
 		RobotNetworkInterface robotInterface = new RobotNetworkInterface(5801);
 		Path path = RecordedPaths.scaleRtoR();
 
@@ -22,7 +22,7 @@ public class PathTools {
 			}
 
 			display.update();
-			// clockRegulator.sync();
+			clockRegulator.sync();
 		}
 	}
 }
