@@ -56,7 +56,7 @@ public class FollowPath implements AutFunction, LoopModule {
 
 	@Override
 	public void update(long deltaTime) {
-		if (base.getAvgRate() < maxAbortSpeed) {
+		if (Math.abs(base.getAvgRate()) < maxAbortSpeed) {
 			// robot isn't moving...
 			Robot.nBroadcaster
 					.println("Robot stuck. Abort in " + (lastMovedTimeout - System.currentTimeMillis()) + " ms");
@@ -110,10 +110,7 @@ public class FollowPath implements AutFunction, LoopModule {
 			double finalAngle = interpAngle;
 
 			if (isReversed) {
-				finalAngle += clamp(error * crossTrackP, 90, -90);
 				interpSpeed = -interpSpeed;
-			} else {
-				finalAngle -= clamp(error * crossTrackP, 90, -90);
 			}
 
 			driveControl.setTurnPID(finalAngle);
