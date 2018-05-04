@@ -20,7 +20,7 @@ public class Multi implements AutFunction {
 			threads[i] = new ArrayList<AutFunction>();
 		}
 
-		System.out.println(threads[0]);
+		Robot.nBroadcaster.println(threads[0]);
 	}
 
 	@Override
@@ -36,6 +36,7 @@ public class Multi implements AutFunction {
 					if (indexes[i] >= threads[i].size()) {
 						isDone[i] = true;
 					} else {
+						Robot.nBroadcaster.println("thread " + i + " " + function.getClass().getName() + " start.");
 						threads[i].get(indexes[i]).init();
 					}
 				} else {
@@ -57,6 +58,7 @@ public class Multi implements AutFunction {
 				isDone[i] = true;
 			} else {
 				functions.get(0).init();
+				Robot.nBroadcaster.println("thread " + i + " " + functions.get(0).getClass().getName() + " start.");
 			}
 		}
 	}
