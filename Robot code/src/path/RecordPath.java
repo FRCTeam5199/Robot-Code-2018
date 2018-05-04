@@ -49,4 +49,10 @@ public class RecordPath implements LoopModule {
 		}
 
 	}
+
+	@Override
+	public void cleanUp() {
+		// TODO Auto-generated method stub
+		
+	}
 }
