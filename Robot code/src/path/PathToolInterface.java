@@ -9,6 +9,7 @@ import java.net.UnknownHostException;
 
 import org.usfirst.frc.team5199.robot.Robot;
 
+import drive.DriveBase;
 import maths.Vector2;
 import networking.ByteUtils;
 import sensors.Location;
@@ -74,6 +75,15 @@ public class PathToolInterface {
 	public void setCheckpointIndex(int checkpointIndex) {
 		byte[] data = ByteUtils.toByteArray(2);
 		data = addArray(data, ByteUtils.toByteArray(checkpointIndex));
+		sendData(data);
+	}
+
+	public void sendUltra(double front, double rear, double left, double right) {
+		byte[] data = ByteUtils.toByteArray(3);
+		data = addArray(data, ByteUtils.toByteArray(front));
+		data = addArray(data, ByteUtils.toByteArray(rear));
+		data = addArray(data, ByteUtils.toByteArray(left));
+		data = addArray(data, ByteUtils.toByteArray(right));
 		sendData(data);
 	}
 
