@@ -6,7 +6,7 @@ import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import interfaces.AutFunction;
 
 public class TurnTo implements AutFunction {
-	private final double angleTolerance = 3;
+	private final double angleTolerance = 4;
 	private final double rateTolerance = 10;
 	private final double angle;
 	private final DriveBase base;
