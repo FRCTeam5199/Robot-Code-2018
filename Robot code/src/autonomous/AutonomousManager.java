@@ -43,7 +43,7 @@ public class AutonomousManager {
 				step++;
 				if (step < functions.size()) {
 					functions.get(step).init();
-					Robot.nBroadcaster.println(functions.get(0).getClass().getName() + " start");
+					Robot.nBroadcaster.println(functions.get(step).getClass().getName() + " start");
 				}
 			}
 		} else {
@@ -56,6 +56,7 @@ public class AutonomousManager {
 	}
 
 	public void add(AutFunction f) {
+		Robot.nBroadcaster.println("Add " + f.getClass().getName());
 		functions.add(f);
 	}
 
